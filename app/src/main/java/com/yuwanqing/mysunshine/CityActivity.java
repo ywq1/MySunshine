@@ -44,6 +44,7 @@ public class CityActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(CityActivity.this, MainActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         equry();
@@ -92,6 +93,7 @@ public class CityActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(CityActivity.this, MainActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
     }

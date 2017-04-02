@@ -118,9 +118,9 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if(weather != null && "ok".equals(weather.status)) {
-                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                            editor.putString("weather", responseText);
-                            editor.apply();
+                            //SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                            //editor.putString("weather", responseText);
+                            //editor.apply();
                             showWeatherInfo(weather);
                         }
                         else {
@@ -226,14 +226,15 @@ public class WeatherActivity extends AppCompatActivity {
             case R.id.add_item:
                 Intent intent = new Intent(WeatherActivity.this, CityActivity.class);
                 startActivity(intent);
+                finish();
                 break;
             case R.id.share_item:
                 Intent intent1 = new Intent(WeatherActivity.this, ShareActivity.class);
                 intent1.putExtra("weather_text", data[0]);
                 startActivity(intent1);
                 break;
-            case R.id.finish_item:
-                finish();
+            //case R.id.finish_item:
+            //    finish();
             default:
         }
         return true;

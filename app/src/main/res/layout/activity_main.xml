@@ -35,6 +35,20 @@
         android:layout_marginTop="10dp"
         android:text="快速添加"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dingwei"
+        android:layout_margin="10dp"
+        android:text="定位"/>
+
     <include layout="@layout/hot_city"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/place"
+        android:textSize="20sp"/>
 
 </LinearLayout>
