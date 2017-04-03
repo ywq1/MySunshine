@@ -42,7 +42,7 @@ public class CityActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CityActivity.this, MainActivity.class);
+                Intent intent = new Intent(CityActivity.this, SecondActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -91,7 +91,7 @@ public class CityActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CityActivity.this, MainActivity.class);
+                Intent intent = new Intent(CityActivity.this, SecondActivity.class);
                 startActivity(intent);
                 finish();
             }

@@ -39,7 +39,7 @@ import okhttp3.Response;
 public class WeatherActivity extends AppCompatActivity {
     private FrameLayout mBackground;
     public SwipeRefreshLayout swipeRefresh;//下拉刷新
-    private String mWeatherId;//
+    private String mWeatherId;
     private ScrollView weatherLayout;
     private TextView titleCity;
     private TextView degreeText;
@@ -118,13 +118,13 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if(weather != null && "ok".equals(weather.status)) {
-                            //SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                            //editor.putString("weather", responseText);
-                            //editor.apply();
+                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                            editor.putString("weather", responseText);
+                            editor.apply();
                             showWeatherInfo(weather);
                         }
                         else {
-                            Toast.makeText(WeatherActivity.this, "请检查网络或者城市名称输入是否不正确", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WeatherActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
                         }
                         swipeRefresh.setRefreshing(false);//
                     }
@@ -226,7 +226,7 @@ public class WeatherActivity extends AppCompatActivity {
             case R.id.add_item:
                 Intent intent = new Intent(WeatherActivity.this, CityActivity.class);
                 startActivity(intent);
-                finish();
+                //finish();
                 break;
             case R.id.share_item:
                 Intent intent1 = new Intent(WeatherActivity.this, ShareActivity.class);
