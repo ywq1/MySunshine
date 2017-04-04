@@ -12,6 +12,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 
 import com.yuwanqing.mysunshine.gson.Forecast;
 import com.yuwanqing.mysunshine.gson.Weather;
+import com.yuwanqing.mysunshine.gson.WeatherForeign;
 import com.yuwanqing.mysunshine.util.HttpUtil;
 import com.yuwanqing.mysunshine.util.Utility;
 
@@ -36,7 +38,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class WeatherActivity extends AppCompatActivity {
+public class WeatherForeignActivity extends AppCompatActivity {
     private FrameLayout mBackground;
     private SwipeRefreshLayout swipeRefresh;//下拉刷新
     private String mWeatherId;
@@ -49,28 +51,18 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView humText;
     private TextView flText;
     private LinearLayout forecastLayout;
-    private TextView qltyText;
-    private TextView aqiText;
-    private TextView pm25Text;
-    private TextView comfortText;
-    private TextView carWashText;
-    private TextView sportText;
-    private TextView fluText;
-    private TextView drsgText;
-    private TextView travText;
-    private TextView uvText;
     private String data[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_weather);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setContentView(R.layout.activity_weather_foreign);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.foreign_toolbar);
         setSupportActionBar(toolbar);
         data = new String[3];//
         //初始化各控件
-        mBackground = (FrameLayout) findViewById(R.id.main_bg);
-        weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
+        mBackground = (FrameLayout) findViewById(R.id.foreign_main_bg);
+        weatherLayout = (ScrollView) findViewById(R.id.foreign_weather_layout);
         titleCity = (TextView) findViewById(R.id.city_text);
         degreeText = (TextView) findViewById(R.id.degree_text);
         weatherInfoText = (TextView) findViewById(R.id.weather_info_text);
@@ -79,17 +71,7 @@ public class WeatherActivity extends AppCompatActivity {
         humText = (TextView) findViewById(R.id.hum_text);
         flText = (TextView) findViewById(R.id.fl_text);
         forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
-        qltyText = (TextView) findViewById(R.id.qlty_text);
-        aqiText = (TextView) findViewById(R.id.aqi_text);
-        pm25Text = (TextView) findViewById(R.id.pm25_text);
-        comfortText = (TextView) findViewById(R.id.comfort_text);
-        carWashText = (TextView) findViewById(R.id.car_wash_text);
-        sportText = (TextView) findViewById(R.id.sport_text);
-        fluText = (TextView) findViewById(R.id.flu_text);
-        travText = (TextView) findViewById(R.id.trav_text);
-        drsgText = (TextView) findViewById(R.id.drsg_text);
-        uvText = (TextView) findViewById(R.id.uv_text);
-        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);//
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.foreign_swipe_refresh);//
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);//
         mWeatherId = getIntent().getStringExtra("weather_id");//
 
@@ -118,13 +100,13 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if(weather != null && "ok".equals(weather.status)) {
-                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherForeignActivity.this).edit();
                             editor.putString("weather", responseText);
                             editor.apply();
                             showWeatherInfo(weather);
                         }
                         else {
-                            Toast.makeText(WeatherActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WeatherForeignActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
                         }
                         swipeRefresh.setRefreshing(false);//
                     }
@@ -136,7 +118,7 @@ public class WeatherActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WeatherForeignActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
                         swipeRefresh.setRefreshing(false);//
                     }
                 });
@@ -199,42 +181,21 @@ public class WeatherActivity extends AppCompatActivity {
             data[i++] = cityName + "今天" + forecast.cond.txt_d + "最高气温:" + forecast.tmp.max + " / " + "最低气温:" + forecast.tmp.min;
             forecastLayout.addView(view);
         }
-        if(weather.aqi != null) {
-            qltyText.setText(weather.aqi.city.qlty);
-            aqiText.setText(weather.aqi.city.aqi);
-            pm25Text.setText(weather.aqi.city.pm25);
-        }
-        String comfort = "舒适度:" + weather.suggestion.comf.txt;
-        String carWash = "洗车指数:" + weather.suggestion.cw.txt;
-        String sport = "运动指数:" + weather.suggestion.sport.txt;
-        String drsg = "穿衣指数:" + weather.suggestion.drsg.txt;
-        String flu = "感冒指数:" + weather.suggestion.flu.txt;
-        String uv = "紫外线指数:" + weather.suggestion.uv.txt;
-        String trav = "旅游指数:" + weather.suggestion.trav.txt;
-        comfortText.setText(comfort);
-        carWashText.setText(carWash);
-        sportText.setText(sport);
-        drsgText.setText(drsg);
-        fluText.setText(flu);
-        uvText.setText(uv);
-        travText.setText(trav);
         weatherLayout.setVisibility(View.VISIBLE);
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add_item:
-                Intent intent = new Intent(WeatherActivity.this, CityActivity.class);
+                Intent intent = new Intent(WeatherForeignActivity.this, CityActivity.class);
                 startActivity(intent);
                 //finish();
                 break;
             case R.id.share_item:
-                Intent intent1 = new Intent(WeatherActivity.this, ShareActivity.class);
+                Intent intent1 = new Intent(WeatherForeignActivity.this, ShareActivity.class);
                 intent1.putExtra("weather_text", data[0]);
                 startActivity(intent1);
                 break;
-            //case R.id.finish_item:
-            //    finish();
             default:
         }
         return true;
@@ -398,5 +359,4 @@ public class WeatherActivity extends AppCompatActivity {
             mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.cold));
         }
     }
-
 }

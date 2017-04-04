@@ -28,8 +28,10 @@ public class SecondActivity extends AppCompatActivity {
     private StringBuilder currentPosition;
     private Button dingwei1;
     private String locationinfo;
-    private String[] cities;
+    private String[] cities2;
+    private String[] foreigncities2;
     private int j;
+    private int k;
 
     private Button button;
     private EditText editCity;
@@ -67,8 +69,10 @@ public class SecondActivity extends AppCompatActivity {
         button = (Button) findViewById(R.id.tianjia);
         editCity = (EditText) findViewById(R.id.edit_city);
         dingwei1 = (Button) findViewById(R.id.dingwei);
-        cities = new String[6362];
-        cities = getCities();
+        cities2 = new String[6362];
+        cities2 = getCities();
+        foreigncities2 = new String[9144];
+        foreigncities2 = getForeignCities();
 
         requestLocation();
         dingwei1.setOnClickListener(new View.OnClickListener() {
@@ -90,9 +94,15 @@ public class SecondActivity extends AppCompatActivity {
             public void onClick(View v) {
                 CityBase.dbHelper.getWritableDatabase();
                 cityname = editCity.getText().toString();
-                if(isCities(cityname)) {
+                if(isCities(cityname, cities2)==1) {
                     //Intent intent = new Intent(MainActivity.this, ChooseAreaActivity.class);
                     Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
+                    intent.putExtra("weather_id", cityname);
+                    startActivity(intent);
+                    finish();
+                }
+                else if(isCities(cityname, foreigncities2)==1){
+                    Intent intent = new Intent(SecondActivity.this, WeatherForeignActivity.class);
                     intent.putExtra("weather_id", cityname);
                     startActivity(intent);
                     finish();
@@ -404,19 +414,59 @@ public class SecondActivity extends AppCompatActivity {
         });
         return city;
     }
+    //获取所有城市的id和name
+    public String[] getForeignCities() {
+        final String[] city;
+        k=0;
+        city = new String[9144];
+        String weatherUrl = "https://cdn.heweather.com/world-top-city-list.json";
+        HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String responseText = response.body().string();
+                try{
+                    JSONArray jsonArray = new JSONArray(responseText);
+                    int a = jsonArray.length();
+                    int b=1;
+                    for(int i=0;i<a;i++){
+                        JSONObject resultsObject = jsonArray.getJSONObject(i);
+                        String aa = resultsObject.getString("cityEn");
+                        String bb = resultsObject.getString("cityZh");
+                        city[k++] = aa;
+                        city[k++] = bb;
+                        //currentPosition.append(" ").append(resultsObject.getString("cityEn")).append(resultsObject.getString("cityZh"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(SecondActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        return city;
+    }
     //判断输入的城市id是否在可查询的城市数组里
-    public boolean isCities(String city_info) {
+    public int isCities(String city_info, String[] cityfc) {
         int flag = 0;
-        for(int j=0;j<6362;j++){
-            if(city_info.equals(cities[j])){
+        for(int j=0;j<cityfc.length;j++){
+            if(city_info.equals(cityfc[j])){
                 flag = 1;
+                break;
             }
         }
         if(flag==1) {
-            return true;
+            return 1;
         }
         else {
-            return false;
+            return 0;
         }
     }
 }

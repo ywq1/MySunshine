@@ -5,13 +5,11 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.util.Log;
+import android.widget.Toast;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClientOption;
 import com.yuwanqing.mysunshine.gson.Weather;
+import com.yuwanqing.mysunshine.util.HttpUtil;
 import com.yuwanqing.mysunshine.util.Utility;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,10 +24,19 @@ public class MainActivity extends AppCompatActivity {
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
             final Weather weather1 = Utility.handleWeatherResponse(weatherString);
-            Intent intent = new Intent(this, WeatherActivity.class);
-            intent.putExtra("weather_id", weather1.basic.city);
-            startActivity(intent);
-            finish();
+            String city1 = weather1.basic.city;
+            if(isCities(city1, CityBase.cities1) == 1) {
+                Intent intent = new Intent(this, WeatherActivity.class);
+                intent.putExtra("weather_id", weather1.basic.city);
+                startActivity(intent);
+                finish();
+            }
+            else{
+                Intent intent = new Intent(this, WeatherForeignActivity.class);
+                intent.putExtra("weather_id", weather1.basic.city);
+                startActivity(intent);
+                finish();
+            }
         }
         else {
             Intent intent = new Intent(this, SecondActivity.class);
@@ -37,6 +44,20 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
     }
-
-
+    //判断输入的城市id是否在可查询的城市数组里
+    public int isCities(String city_info, String[] cityfc) {
+        int flag = 0;
+        for(int j=0;j<cityfc.length;j++){
+            if(city_info.equals(cityfc[j])){
+                flag = 1;
+                break;
+            }
+        }
+        if(flag==1) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
 }
