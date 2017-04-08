@@ -7,7 +7,6 @@ import com.yuwanqing.mysunshine.db.County;
 import com.yuwanqing.mysunshine.db.Province;
 import com.yuwanqing.mysunshine.gson.Weather;
 import com.google.gson.Gson;
-import com.yuwanqing.mysunshine.gson.WeatherForeign;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,20 +84,6 @@ public class Utility {
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather5");
             String weatherContent = jsonArray.getJSONObject(0).toString();
             return new Gson().fromJson(weatherContent, Weather.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    /**
-     * 将返回的国外城市的天气JSON数据解析成WeatherForeign实体类
-     */
-    public static WeatherForeign handleWeatherForeignResponse(String response) {
-        try{
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather5");
-            String weatherContent = jsonArray.getJSONObject(0).toString();
-            return new Gson().fromJson(weatherContent, WeatherForeign.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

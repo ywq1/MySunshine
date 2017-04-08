@@ -148,6 +148,7 @@ public class WeatherActivity extends AppCompatActivity {
      */
     private void showWeatherInfo(Weather weather) {
         String cityName = weather.basic.city;
+        String cityId = weather.basic.id;
         String degree = weather.now.tmp + "℃";
         String weatherInfo = weather.now.cond.txt;
         String winddir = weather.now.wind.dir;
@@ -164,15 +165,18 @@ public class WeatherActivity extends AppCompatActivity {
         if(cursor.moveToFirst()) {
             do {
                 //遍历Cursor对象，取出数据并打印
-                String name = cursor.getString(cursor.getColumnIndex("city_name"));
-                if(name.equals(cityName))
+                String id = cursor.getString(cursor.getColumnIndex("city_id"));
+                if(id.equals(cityId)){
                     flag=1;
+                    break;
+                }
             }while(cursor.moveToNext());
         }
         cursor.close();
         if(flag==0) {
             ContentValues values = new ContentValues();
             values.put("city_name", cityName);
+            values.put("city_id", cityId);
             db.insert("City", null, values);
             values.clear();
         }

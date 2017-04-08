@@ -109,10 +109,10 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/datong"
+                android:id="@+id/foshan"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="大同"
+                android:text="佛山"
                 android:layout_weight="1"/>
 
             <Button
@@ -122,10 +122,10 @@
                 android:text="长沙"
                 android:layout_weight="1"/>
             <Button
-                android:id="@+id/xian"
+                android:id="@+id/zhengzhou"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="西安"
+                android:text="郑州"
                 android:layout_weight="1"/>
         </LinearLayout>
         <LinearLayout

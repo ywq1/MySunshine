@@ -6,18 +6,14 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -26,11 +22,8 @@ import android.widget.Toast;
 
 import com.yuwanqing.mysunshine.gson.Forecast;
 import com.yuwanqing.mysunshine.gson.Weather;
-import com.yuwanqing.mysunshine.gson.WeatherForeign;
 import com.yuwanqing.mysunshine.util.HttpUtil;
 import com.yuwanqing.mysunshine.util.Utility;
-
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 
@@ -130,6 +123,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
      */
     private void showWeatherInfo(Weather weather) {
         String cityName = weather.basic.city;
+        String cityId = weather.basic.id;
         String degree = weather.now.tmp + "℃";
         String weatherInfo = weather.now.cond.txt;
         String winddir = weather.now.wind.dir;
@@ -146,15 +140,18 @@ public class WeatherForeignActivity extends AppCompatActivity {
         if(cursor.moveToFirst()) {
             do {
                 //遍历Cursor对象，取出数据并打印
-                String name = cursor.getString(cursor.getColumnIndex("city_name"));
-                if(name.equals(cityName))
+                String name = cursor.getString(cursor.getColumnIndex("city_id"));
+                if(name.equals(cityId)){
                     flag=1;
+                    break;
+                }
             }while(cursor.moveToNext());
         }
         cursor.close();
         if(flag==0) {
             ContentValues values = new ContentValues();
             values.put("city_name", cityName);
+            values.put("city_id", cityId);
             db.insert("City", null, values);
             values.clear();
         }

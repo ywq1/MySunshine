@@ -1,9 +1,16 @@
 package com.yuwanqing.mysunshine;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -12,12 +19,15 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.yuwanqing.mysunshine.gson.Weather;
 import com.yuwanqing.mysunshine.util.HttpUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -28,13 +38,14 @@ public class SecondActivity extends AppCompatActivity {
     private StringBuilder currentPosition;
     private Button dingwei1;
     private String locationinfo;
-    private String[] cities2;
-    private String[] foreigncities2;
-    private int j;
+    private String[] ary;
+    private String[][] ary2;
+    private String[][] ary1;
+    private String[][] ary3;
     private int k;
 
     private Button button;
-    private EditText editCity;
+    private AutoCompleteTextView editCity;
     private String cityname;
     private Button beijing;
     private Button tianjin;
@@ -48,9 +59,9 @@ public class SecondActivity extends AppCompatActivity {
     private Button suzhou;
     private Button hangzhou;
     private Button jinan;
-    private Button datong;
+    private Button foshan;
     private Button changsha;
-    private Button xian;
+    private Button zhengzhou;
     private Button chongqing;
     private Button chengdu;
     private Button wuhan;
@@ -66,23 +77,81 @@ public class SecondActivity extends AppCompatActivity {
         //注册一个定位监听器，当获取到位置信息的时候，就会回调这个定位监听器
         mLocationClient.registerLocationListener(new SecondActivity.MyLocationListener());
         setContentView(R.layout.activity_second);
-        button = (Button) findViewById(R.id.tianjia);
-        editCity = (EditText) findViewById(R.id.edit_city);
-        dingwei1 = (Button) findViewById(R.id.dingwei);
-        cities2 = new String[6362];
-        cities2 = getCities();
-        foreigncities2 = new String[9144];
-        foreigncities2 = getForeignCities();
 
-        requestLocation();
+        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+        ary = new String[4859];//3181+1678
+        ary2 = new String[3181][3];
+        ary1 = new String[3181][2];
+        ary3 = new String[1678][2];
+        //查询Book表中的所有的数据
+        Cursor cursor = db.query("City_id", null, null, null, null, null, null);
+        cursor.moveToFirst();
+        for (int i = 0; i < 3181; i++, cursor.moveToNext()) {
+            //遍历Cursor对象，取出数据并打印
+            String name_country = cursor.getString(cursor.getColumnIndex("city_name_country"));
+            String leader = cursor.getString(cursor.getColumnIndex("city_leader"));
+            String id = cursor.getString(cursor.getColumnIndex("city_id"));
+            String name = cursor.getString(cursor.getColumnIndex("city_name"));
+            ary[i] = name_country;
+            ary2[i][0] = name;
+            ary2[i][1] = leader;
+            ary2[i][2] = id;
+            ary1[i][0] = id;
+            ary1[i][1] = name_country;
+        }
+        for (int j = 0; j < 1678; j++) {
+            ary[3181 + j] = CityBase.fcity[j][2] + "-" + CityBase.fcity[j][4];
+            ary3[j][0] = CityBase.fcity[j][0];
+            ary3[j][1] = CityBase.fcity[j][2] + "-" + CityBase.fcity[j][4];
+        }
+        cursor.close();
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, ary);
+
+        button = (Button) findViewById(R.id.tianjia);
+        editCity = (AutoCompleteTextView) findViewById(R.id.edit_city);
+        editCity.setAdapter(adapter);
+
+        dingwei1 = (Button) findViewById(R.id.dingwei);
+
+        List<String> permissionList = new ArrayList<>();
+        //判断ACCESS_COARSE_LOCATION,ACCESS_FINE_LOCATION（是同一个权限组）,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE这4个
+        //权限有没有被授权，如果没被授权就添加到List集合中
+        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(android.Manifest.permission.READ_PHONE_STATE);
+        }
+        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (!permissionList.isEmpty()) {
+            String[] permissions = permissionList.toArray(new String[permissionList.size()]);
+            ActivityCompat.requestPermissions(SecondActivity.this, permissions, 1);
+        } else {
+            requestLocation();
+        }
+
         dingwei1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String tongzhou = "通州";
-                String tongzhouqu = tongzhou + "区";
-                if (locationinfo.equals(tongzhouqu)) {
+                String[] city_qu = new String[3181];
+                for (int i = 0; i < 3181; i++) {
+                    city_qu[i] = ary2[i][0] + "区" + ary2[i][1] + "市";
+                }
+                if (locationinfo == null) {
+                    Toast.makeText(SecondActivity.this, "没有获得定位权限", Toast.LENGTH_SHORT).show();
+                } else {
+                    int m = 0;
+                    for (m = 0; m < 3181; m++) {
+                        if (locationinfo.equals(city_qu[m]))
+                            break;
+                    }
                     Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
-                    intent.putExtra("weather_id", tongzhou);
+                    intent.putExtra("weather_id", ary2[m][2]);
                     startActivity(intent);
                     finish();
                 }
@@ -94,29 +163,43 @@ public class SecondActivity extends AppCompatActivity {
             public void onClick(View v) {
                 CityBase.dbHelper.getWritableDatabase();
                 cityname = editCity.getText().toString();
-                if(isCities(cityname, cities2)==1) {
-                    //Intent intent = new Intent(MainActivity.this, ChooseAreaActivity.class);
+                int flag = 0;
+                int i = 0;
+                int j = 0;
+                for (i = 0; i < ary1.length; i++) {
+                    if (cityname.equals(ary1[i][1])) {
+                        flag = 1;
+                        break;
+                    }
+                }
+                for (j = 0; j < ary3.length; j++) {
+                    if (cityname.equals(ary3[j][1])) {
+                        flag = 2;
+                        break;
+                    }
+                }
+                if (flag == 1) {
                     Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
-                    intent.putExtra("weather_id", cityname);
+                    intent.putExtra("weather_id", ary1[i][0]);
                     startActivity(intent);
                     finish();
-                }
-                else if(isCities(cityname, foreigncities2)==1){
+                } else if (flag == 2) {
                     Intent intent = new Intent(SecondActivity.this, WeatherForeignActivity.class);
-                    intent.putExtra("weather_id", cityname);
+                    intent.putExtra("weather_id", ary3[j][0]);
                     startActivity(intent);
                     finish();
-                }
-                else {
+                } else {
                     Toast.makeText(SecondActivity.this, "城市输入不正确", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
+
     private void requestLocation() {
         initLocation();
         mLocationClient.start();
     }
+
     //配置定位SDK参数
     private void initLocation() {
         LocationClientOption option = new LocationClientOption();//LocationClientOption类，该类用来设置定位SDK的定位方式
@@ -127,11 +210,13 @@ public class SecondActivity extends AppCompatActivity {
         ////可选，设置是否需要地址信息，默认不需要
         mLocationClient.setLocOption(option);//设置定位参数
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mLocationClient.stop();
     }
+
     public class MyLocationListener implements BDLocationListener {
         //接收异步返回的定位结果
         @Override
@@ -148,7 +233,7 @@ public class SecondActivity extends AppCompatActivity {
             currentPosition.append("市：").append(location.getCity()).append("\n");
             currentPosition.append("区：").append(location.getDistrict()).append("\n");
 
-            locationinfo = location.getDistrict();
+            locationinfo = location.getDistrict() + location.getCity();
 
             currentPosition.append("街道：").append(location.getStreet()).append("\n");
             currentPosition.append("定位方式：");
@@ -158,12 +243,14 @@ public class SecondActivity extends AppCompatActivity {
                 currentPosition.append("网络");
             }
         }
+
         @Override
         public void onConnectHotSpotMessage(String s, int i) {
         }
     }
+
     //热门城市的点击
-    public void click(){
+    public void click() {
         beijing = (Button) findViewById(R.id.beijing);
         tianjin = (Button) findViewById(R.id.tianjin);
         shanghai = (Button) findViewById(R.id.shanghai);
@@ -176,9 +263,9 @@ public class SecondActivity extends AppCompatActivity {
         suzhou = (Button) findViewById(R.id.suzhou);
         hangzhou = (Button) findViewById(R.id.hangzhou);
         jinan = (Button) findViewById(R.id.jinan);
-        datong = (Button) findViewById(R.id.datong);
+        foshan = (Button) findViewById(R.id.foshan);
         changsha = (Button) findViewById(R.id.changsha);
-        xian = (Button) findViewById(R.id.xian);
+        zhengzhou = (Button) findViewById(R.id.zhengzhou);
         chongqing = (Button) findViewById(R.id.chongqing);
         chengdu = (Button) findViewById(R.id.chengdu);
         wuhan = (Button) findViewById(R.id.wuhan);
@@ -294,11 +381,11 @@ public class SecondActivity extends AppCompatActivity {
                 finish();
             }
         });
-        datong.setOnClickListener(new View.OnClickListener() {
+        foshan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
-                intent.putExtra("weather_id", datong.getText().toString());
+                intent.putExtra("weather_id", foshan.getText().toString());
                 startActivity(intent);
                 finish();
             }
@@ -312,11 +399,11 @@ public class SecondActivity extends AppCompatActivity {
                 finish();
             }
         });
-        xian.setOnClickListener(new View.OnClickListener() {
+        zhengzhou.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
-                intent.putExtra("weather_id", xian.getText().toString());
+                intent.putExtra("weather_id", zhengzhou.getText().toString());
                 startActivity(intent);
                 finish();
             }
@@ -334,7 +421,7 @@ public class SecondActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
-                intent.putExtra("weather_id",chengdu.getText().toString());
+                intent.putExtra("weather_id", chengdu.getText().toString());
                 startActivity(intent);
                 finish();
             }
@@ -376,59 +463,22 @@ public class SecondActivity extends AppCompatActivity {
             }
         });
     }
-    //获取所有城市的id和name
-    public String[] getCities() {
-        final String[] city;
-        j=0;
-        city = new String[6362];
-        String weatherUrl = "https://cdn.heweather.com/china-city-list.json";
-        HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
-                try{
-                    JSONArray jsonArray = new JSONArray(responseText);
-                    int a = jsonArray.length();
-                    for(int i=0;i<a;i++){
-                        JSONObject resultsObject = jsonArray.getJSONObject(i);
-                        String aa = resultsObject.getString("cityEn");
-                        String bb = resultsObject.getString("cityZh");
-                        city[j++] = aa;
-                        city[j++] = bb;
-                        //currentPosition.append(" ").append(resultsObject.getString("cityEn")).append(resultsObject.getString("cityZh"));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SecondActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
-        return city;
-    }
+
     //获取所有城市的id和name
     public String[] getForeignCities() {
         final String[] city;
-        k=0;
+        k = 0;
         city = new String[9144];
         String weatherUrl = "https://cdn.heweather.com/world-top-city-list.json";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
-                try{
+                try {
                     JSONArray jsonArray = new JSONArray(responseText);
                     int a = jsonArray.length();
-                    int b=1;
-                    for(int i=0;i<a;i++){
+                    int b = 1;
+                    for (int i = 0; i < a; i++) {
                         JSONObject resultsObject = jsonArray.getJSONObject(i);
                         String aa = resultsObject.getString("cityEn");
                         String bb = resultsObject.getString("cityZh");
@@ -440,6 +490,7 @@ public class SecondActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -452,21 +503,5 @@ public class SecondActivity extends AppCompatActivity {
             }
         });
         return city;
-    }
-    //判断输入的城市id是否在可查询的城市数组里
-    public int isCities(String city_info, String[] cityfc) {
-        int flag = 0;
-        for(int j=0;j<cityfc.length;j++){
-            if(city_info.equals(cityfc[j])){
-                flag = 1;
-                break;
-            }
-        }
-        if(flag==1) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
     }
 }
