@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Handler;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -112,29 +113,6 @@ public class SecondActivity extends AppCompatActivity {
         editCity.setAdapter(adapter);
 
         dingwei1 = (Button) findViewById(R.id.dingwei);
-
-        List<String> permissionList = new ArrayList<>();
-        //判断ACCESS_COARSE_LOCATION,ACCESS_FINE_LOCATION（是同一个权限组）,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE这4个
-        //权限有没有被授权，如果没被授权就添加到List集合中
-        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(android.Manifest.permission.READ_PHONE_STATE);
-        }
-        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-        if (!permissionList.isEmpty()) {
-            String[] permissions = permissionList.toArray(new String[permissionList.size()]);
-            ActivityCompat.requestPermissions(SecondActivity.this, permissions, 1);
-        } else {
-            requestLocation();
-        }
-
         dingwei1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,18 +120,41 @@ public class SecondActivity extends AppCompatActivity {
                 for (int i = 0; i < 3181; i++) {
                     city_qu[i] = ary2[i][0] + "区" + ary2[i][1] + "市";
                 }
-                if (locationinfo == null) {
+                List<String> permissionList = new ArrayList<>();
+                //判断ACCESS_COARSE_LOCATION,ACCESS_FINE_LOCATION（是同一个权限组）,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE这4个
+                //权限有没有被授权，如果没被授权就添加到List集合中
+                if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    permissionList.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
+                }
+                if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.READ_PHONE_STATE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    permissionList.add(android.Manifest.permission.READ_PHONE_STATE);
+                }
+                if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    permissionList.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                }
+                if (!permissionList.isEmpty()) {
+                    String[] permissions = permissionList.toArray(new String[permissionList.size()]);
+                    ActivityCompat.requestPermissions(SecondActivity.this, permissions, 1);
                     Toast.makeText(SecondActivity.this, "没有获得定位权限", Toast.LENGTH_SHORT).show();
                 } else {
-                    int m = 0;
-                    for (m = 0; m < 3181; m++) {
-                        if (locationinfo.equals(city_qu[m]))
-                            break;
+                    requestLocation();
+                    if(locationinfo == null) {
+                        Toast.makeText(SecondActivity.this, "请再点击一次", Toast.LENGTH_SHORT).show();
                     }
-                    Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
-                    intent.putExtra("weather_id", ary2[m][2]);
-                    startActivity(intent);
-                    finish();
+                    else{
+                        int m = 0;
+                        for (m = 0; m < 3181; m++) {
+                            if (locationinfo.equals(city_qu[m]))
+                                break;
+                        }
+                        Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
+                        intent.putExtra("weather_id", ary2[m][2]);
+                        startActivity(intent);
+                        finish();
+                    }
                 }
             }
         });
@@ -464,44 +465,4 @@ public class SecondActivity extends AppCompatActivity {
         });
     }
 
-    //获取所有城市的id和name
-    public String[] getForeignCities() {
-        final String[] city;
-        k = 0;
-        city = new String[9144];
-        String weatherUrl = "https://cdn.heweather.com/world-top-city-list.json";
-        HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
-                try {
-                    JSONArray jsonArray = new JSONArray(responseText);
-                    int a = jsonArray.length();
-                    int b = 1;
-                    for (int i = 0; i < a; i++) {
-                        JSONObject resultsObject = jsonArray.getJSONObject(i);
-                        String aa = resultsObject.getString("cityEn");
-                        String bb = resultsObject.getString("cityZh");
-                        city[k++] = aa;
-                        city[k++] = bb;
-                        //currentPosition.append(" ").append(resultsObject.getString("cityEn")).append(resultsObject.getString("cityZh"));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SecondActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
-        return city;
-    }
 }

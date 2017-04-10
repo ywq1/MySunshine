@@ -149,6 +149,8 @@ public class WeatherActivity extends AppCompatActivity {
     private void showWeatherInfo(Weather weather) {
         String cityName = weather.basic.city;
         String cityId = weather.basic.id;
+        String cityLat = weather.basic.lat;
+        String cityLon = weather.basic.lon;
         String degree = weather.now.tmp + "℃";
         String weatherInfo = weather.now.cond.txt;
         String winddir = weather.now.wind.dir;
@@ -162,17 +164,54 @@ public class WeatherActivity extends AppCompatActivity {
         SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
         //查询Book表中的所有的数据
         Cursor cursor = db.query("City", null, null, null, null, null, null);
+        Cursor cursor2 = db.query("City", null, null, null, null, null, null);
+        Cursor cursor3 = db.query("City", null, null, null, null, null, null);
         if(cursor.moveToFirst()) {
             do {
                 //遍历Cursor对象，取出数据并打印
+                String name = cursor.getString(cursor.getColumnIndex("city_name"));
                 String id = cursor.getString(cursor.getColumnIndex("city_id"));
-                if(id.equals(cityId)){
-                    flag=1;
-                    break;
+                if(name.equals(cityName)){
+                    if(!id.equals(cityId)) {
+                        cityName = cityName + "1";
+                        if(cursor2.moveToFirst()) {
+                            do{
+                                String name2 = cursor2.getString(cursor2.getColumnIndex("city_name"));
+                                String id2 = cursor2.getString(cursor2.getColumnIndex("city_id"));
+                                if(name2.equals(cityName)) {
+                                    if(!id2.equals(cityId)) {
+                                        cityName = cityName + "1";
+                                        if(cursor3.moveToFirst()) {
+                                            do{
+                                                String name3 = cursor3.getString(cursor3.getColumnIndex("city_name"));
+                                                String id3 = cursor3.getString(cursor3.getColumnIndex("city_id"));
+                                                if(name3.equals(cityName)) {
+                                                    flag = 1;
+                                                    break;
+                                                }
+                                            }while(cursor3.moveToNext());
+                                        }
+                                        break;
+                                    }
+                                    else {
+                                        flag = 1;
+                                        break;
+                                    }
+                                }
+                            }while(cursor2.moveToNext());
+                        }
+                        break;
+                    }
+                    else {
+                        flag = 1;
+                        break;
+                    }
                 }
             }while(cursor.moveToNext());
         }
         cursor.close();
+        cursor2.close();
+        cursor3.close();
         if(flag==0) {
             ContentValues values = new ContentValues();
             values.put("city_name", cityName);

@@ -1,5 +1,6 @@
 package com.yuwanqing.mysunshine;
 
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +25,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
     SQLiteDatabase db;
     String[] b = new String[3181];
 
@@ -65,15 +67,12 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             getCities();
-            while(true) {
-                if(b[3180]!=null) {
-                    break;
-                }
-                //Log.v("MainActivity", "我们是 ");
-            }
-            Intent intent = new Intent(this, SecondActivity.class);
-            startActivity(intent);
-            finish();
+            //while(true) {
+            //    if(b[3180]!=null) {
+            //        break;
+            //    }
+            //    Log.v("MainActivity", "我们是 ");
+            //}
         }
 
     }
@@ -95,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     }
     //获取所有城市的id和name
     public void getCities() {
+        //showProgressDialog();
         db = CityBase.dbHelper.getWritableDatabase();
         String weatherUrl = "https://cdn.heweather.com/china-city-list.json";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
@@ -124,6 +124,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+                if(b[3180] != null) {
+                    //closeProgressDialog();
+                    Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             }
             @Override
@@ -226,5 +232,20 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+    //显示进度对话框
+    private void showProgressDialog(){
+        if(progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("正在加载...");
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.show();
+    }
+    //关闭进度对话框
+    private void closeProgressDialog() {
+        if(progressDialog != null) {
+            progressDialog.dismiss();
+        }
     }
 }
