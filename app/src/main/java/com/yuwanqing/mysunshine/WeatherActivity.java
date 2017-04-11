@@ -23,14 +23,17 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.yuwanqing.mysunshine.db.City;
 import com.yuwanqing.mysunshine.gson.Forecast;
 import com.yuwanqing.mysunshine.gson.Weather;
 import com.yuwanqing.mysunshine.util.HttpUtil;
+import com.yuwanqing.mysunshine.util.StackManager;
 import com.yuwanqing.mysunshine.util.Utility;
 
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.util.Stack;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -65,19 +68,24 @@ public class WeatherActivity extends AppCompatActivity {
     private String data[];
     private String city;
     private String date;
-    private String aqi1;
-    private String qlty;
-    private String pm25;
-    private String pm10;
-    private String no2;
-    private String so2;
-    private String co;
-    private String o3;
+    private String aqi1=null;
+    private String qlty=null;
+    private String pm25=null;
+    private String pm10=null;
+    private String no2=null;
+    private String so2=null;
+    private String co=null;
+    private String o3=null;
+    private StackManager stack;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+        stack = CityBase.stackHelper.getStackManager();
+        stack.pushActivity(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         data = new String[3];//
@@ -192,14 +200,6 @@ public class WeatherActivity extends AppCompatActivity {
         String cityName = weather.basic.city;
         city = cityName;
         date = weather.basic.update.loc;
-        aqi1 = weather.aqi.city.aqi;
-        qlty = weather.aqi.city.qlty;
-        pm25 = weather.aqi.city.pm25;
-        pm10 = weather.aqi.city.pm10;
-        no2 = weather.aqi.city.no2;
-        so2 = weather.aqi.city.so2;
-        co = weather.aqi.city.co;
-        o3 = weather.aqi.city.o3;
         String[] c=date.split(" ");
         String cityId = weather.basic.id;
         String degree = weather.now.tmp + "℃";
@@ -299,6 +299,14 @@ public class WeatherActivity extends AppCompatActivity {
             aqiText.setText(weather.aqi.city.aqi);
             pm10Text.setText(weather.aqi.city.pm10);
             date_loc.setText(c[1] + "发布 ");
+            aqi1 = weather.aqi.city.aqi;
+            qlty = weather.aqi.city.qlty;
+            pm25 = weather.aqi.city.pm25;
+            pm10 = weather.aqi.city.pm10;
+            no2 = weather.aqi.city.no2;
+            so2 = weather.aqi.city.so2;
+            co = weather.aqi.city.co;
+            o3 = weather.aqi.city.o3;
         }
         String comfort = "舒适度:" + weather.suggestion.comf.txt;
         String carWash = "洗车指数:" + weather.suggestion.cw.txt;
@@ -331,6 +339,8 @@ public class WeatherActivity extends AppCompatActivity {
                         + "后天：" + data[2] + "\n" + date + "发布");
                 startActivity(intent1);
                 break;
+            case R.id.finish_item:
+                stack.popAllActivitys();
             default:
         }
         return true;

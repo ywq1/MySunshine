@@ -5,12 +5,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.yuwanqing.mysunshine.util.StackManager;
 
 /**
  * Created by yuwanqing on 2017-03-31.
  */
 public class CityBase {
     public static MyDatabaseHelper dbHelper;
+    public static StackManager stackHelper;
     public static String[][] fcity = new String[][]{
             {"JP1850147", "Tokyo", "东京", "Japan", "日本"},
             {"JP1848354", "Yokohama", "横滨市", "Japan", "日本"},

@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.yuwanqing.mysunshine.gson.Forecast;
 import com.yuwanqing.mysunshine.gson.Weather;
 import com.yuwanqing.mysunshine.util.HttpUtil;
+import com.yuwanqing.mysunshine.util.StackManager;
 import com.yuwanqing.mysunshine.util.Utility;
 
 import java.io.IOException;
@@ -48,11 +49,15 @@ public class WeatherForeignActivity extends AppCompatActivity {
     private String data[];
     private String city;
     private String date;
+    private StackManager stack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_foreign);
+        stack = CityBase.stackHelper.getStackManager();
+        stack.pushActivity(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.foreign_toolbar);
         setSupportActionBar(toolbar);
         data = new String[3];//
@@ -208,6 +213,8 @@ public class WeatherForeignActivity extends AppCompatActivity {
                         + data[1] + "\n后天：" + data[2] + "\n" + "当地时间" + date + "发布");
                 startActivity(intent1);
                 break;
+            case R.id.finish_item:
+                stack.popAllActivitys();
             default:
         }
         return true;

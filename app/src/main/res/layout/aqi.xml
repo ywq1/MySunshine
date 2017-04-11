@@ -38,7 +38,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/qlty_text"
-            android:text="New Text"
             android:id="@+id/date"
             android:textColor="#fff"
             android:layout_gravity="center_vertical"
