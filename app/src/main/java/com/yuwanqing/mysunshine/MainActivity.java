@@ -54,25 +54,19 @@ public class MainActivity extends AppCompatActivity {
             String city1 = weather1.basic.city;
             if(isCities(city1, city) == 1) {
                 Intent intent = new Intent(this, WeatherActivity.class);
-                intent.putExtra("weather_id", weather1.basic.id);
+                intent.putExtra("weather_id", weatherString);
                 startActivity(intent);
                 finish();
             }
             else{
                 Intent intent = new Intent(this, WeatherForeignActivity.class);
-                intent.putExtra("weather_id", weather1.basic.city);
+                intent.putExtra("weather_id", weatherString);
                 startActivity(intent);
                 finish();
             }
         }
         else {
             getCities();
-            //while(true) {
-            //    if(b[3180]!=null) {
-            //        break;
-            //    }
-            //    Log.v("MainActivity", "我们是 ");
-            //}
         }
 
     }

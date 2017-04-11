@@ -35,6 +35,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
     private FrameLayout mBackground;
     private SwipeRefreshLayout swipeRefresh;//下拉刷新
     private String mWeatherId;
+    private String mWeatherId1;
     private ScrollView weatherLayout;
     private TextView titleCity;
     private TextView degreeText;
@@ -45,6 +46,8 @@ public class WeatherForeignActivity extends AppCompatActivity {
     private TextView flText;
     private LinearLayout forecastLayout;
     private String data[];
+    private String city;
+    private String date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,16 +67,24 @@ public class WeatherForeignActivity extends AppCompatActivity {
         humText = (TextView) findViewById(R.id.hum_text);
         flText = (TextView) findViewById(R.id.fl_text);
         forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
-        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.foreign_swipe_refresh);//
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);//
-        mWeatherId = getIntent().getStringExtra("weather_id");//
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.foreign_swipe_refresh);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        mWeatherId = getIntent().getStringExtra("weather_id");
 
         weatherLayout.setVisibility(View.INVISIBLE);
-        requestWeather(mWeatherId);//
+        if(mWeatherId.length()<15) {
+            mWeatherId1 = mWeatherId;
+            requestWeather(mWeatherId1);
+        }
+        else{
+            final Weather weather = Utility.handleWeatherResponse(mWeatherId);
+            mWeatherId1 = weather.basic.id;
+            showWeatherInfo(weather);
+        }
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(){
-                requestWeather(mWeatherId);
+                requestWeather(mWeatherId1);
             }
         });
     }
@@ -123,6 +134,8 @@ public class WeatherForeignActivity extends AppCompatActivity {
      */
     private void showWeatherInfo(Weather weather) {
         String cityName = weather.basic.city;
+        city = cityName;
+        date = weather.basic.update.loc;
         String cityId = weather.basic.id;
         String degree = weather.now.tmp + "℃";
         String weatherInfo = weather.now.cond.txt;
@@ -175,7 +188,8 @@ public class WeatherForeignActivity extends AppCompatActivity {
             infoText.setText(forecast.cond.txt_d);
             maxText.setText(forecast.tmp.max);
             minText.setText(forecast.tmp.min);
-            data[i++] = cityName + "今天" + forecast.cond.txt_d + "最高气温:" + forecast.tmp.max + " / " + "最低气温:" + forecast.tmp.min;
+            data[i++] = forecast.cond.txt_d + "，最高气温:" + forecast.tmp.max + "℃，"
+                    + "最低气温:" + forecast.tmp.min + "℃";
             forecastLayout.addView(view);
         }
         weatherLayout.setVisibility(View.VISIBLE);
@@ -190,7 +204,8 @@ public class WeatherForeignActivity extends AppCompatActivity {
                 break;
             case R.id.share_item:
                 Intent intent1 = new Intent(WeatherForeignActivity.this, ShareActivity.class);
-                intent1.putExtra("weather_text", data[0]);
+                intent1.putExtra("weather_text", city + ": \n今天：" + data[0] + "\n明天："
+                        + data[1] + "\n后天：" + data[2] + "\n" + "当地时间" + date + "发布");
                 startActivity(intent1);
                 break;
             default:

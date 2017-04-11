@@ -40,6 +40,7 @@ public class WeatherActivity extends AppCompatActivity {
     private FrameLayout mBackground;
     private SwipeRefreshLayout swipeRefresh;//下拉刷新
     private String mWeatherId;
+    private String mWeatherId1;
     private ScrollView weatherLayout;
     private TextView titleCity;
     private TextView degreeText;
@@ -51,7 +52,9 @@ public class WeatherActivity extends AppCompatActivity {
     private LinearLayout forecastLayout;
     private TextView qltyText;
     private TextView aqiText;
-    private TextView pm25Text;
+    private TextView pm10Text;
+    private TextView date_loc;
+    private TextView detail;
     private TextView comfortText;
     private TextView carWashText;
     private TextView sportText;
@@ -60,6 +63,16 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView travText;
     private TextView uvText;
     private String data[];
+    private String city;
+    private String date;
+    private String aqi1;
+    private String qlty;
+    private String pm25;
+    private String pm10;
+    private String no2;
+    private String so2;
+    private String co;
+    private String o3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +94,9 @@ public class WeatherActivity extends AppCompatActivity {
         forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
         qltyText = (TextView) findViewById(R.id.qlty_text);
         aqiText = (TextView) findViewById(R.id.aqi_text);
-        pm25Text = (TextView) findViewById(R.id.pm25_text);
+        pm10Text = (TextView) findViewById(R.id.pm10_text);
+        date_loc = (TextView) findViewById(R.id.date);
+        detail = (TextView) findViewById(R.id.detail);
         comfortText = (TextView) findViewById(R.id.comfort_text);
         carWashText = (TextView) findViewById(R.id.car_wash_text);
         sportText = (TextView) findViewById(R.id.sport_text);
@@ -89,16 +104,43 @@ public class WeatherActivity extends AppCompatActivity {
         travText = (TextView) findViewById(R.id.trav_text);
         drsgText = (TextView) findViewById(R.id.drsg_text);
         uvText = (TextView) findViewById(R.id.uv_text);
-        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);//
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);//
-        mWeatherId = getIntent().getStringExtra("weather_id");//
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        mWeatherId = getIntent().getStringExtra("weather_id");
 
         weatherLayout.setVisibility(View.INVISIBLE);
-        requestWeather(mWeatherId);//
+        if(mWeatherId.length()<15) {
+            mWeatherId1 = mWeatherId;
+            requestWeather(mWeatherId1);
+        }
+        else{
+            final Weather weather = Utility.handleWeatherResponse(mWeatherId);
+            mWeatherId1 = weather.basic.id;
+            showWeatherInfo(weather);
+        }
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(){
-                requestWeather(mWeatherId);
+                requestWeather(mWeatherId1);
+            }
+        });
+        detail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(WeatherActivity.this, DetailActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("city", city);
+                bundle.putString("date", date);
+                bundle.putString("aqi1", aqi1);
+                bundle.putString("qlty", qlty);
+                bundle.putString("pm25", pm25);
+                bundle.putString("pm10", pm10);
+                bundle.putString("no2", no2);
+                bundle.putString("so2", so2);
+                bundle.putString("co", co);
+                bundle.putString("o3", o3);
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
     }
@@ -148,9 +190,18 @@ public class WeatherActivity extends AppCompatActivity {
      */
     private void showWeatherInfo(Weather weather) {
         String cityName = weather.basic.city;
+        city = cityName;
+        date = weather.basic.update.loc;
+        aqi1 = weather.aqi.city.aqi;
+        qlty = weather.aqi.city.qlty;
+        pm25 = weather.aqi.city.pm25;
+        pm10 = weather.aqi.city.pm10;
+        no2 = weather.aqi.city.no2;
+        so2 = weather.aqi.city.so2;
+        co = weather.aqi.city.co;
+        o3 = weather.aqi.city.o3;
+        String[] c=date.split(" ");
         String cityId = weather.basic.id;
-        String cityLat = weather.basic.lat;
-        String cityLon = weather.basic.lon;
         String degree = weather.now.tmp + "℃";
         String weatherInfo = weather.now.cond.txt;
         String winddir = weather.now.wind.dir;
@@ -239,13 +290,15 @@ public class WeatherActivity extends AppCompatActivity {
             infoText.setText(forecast.cond.txt_d);
             maxText.setText(forecast.tmp.max);
             minText.setText(forecast.tmp.min);
-            data[i++] = cityName + "今天" + forecast.cond.txt_d + "最高气温:" + forecast.tmp.max + " / " + "最低气温:" + forecast.tmp.min;
+            data[i++] = forecast.cond.txt_d + "，最高气温:" + forecast.tmp.max
+                    + "℃，" + "最低气温:" + forecast.tmp.min + "℃";
             forecastLayout.addView(view);
         }
         if(weather.aqi != null) {
             qltyText.setText(weather.aqi.city.qlty);
             aqiText.setText(weather.aqi.city.aqi);
-            pm25Text.setText(weather.aqi.city.pm25);
+            pm10Text.setText(weather.aqi.city.pm10);
+            date_loc.setText(c[1] + "发布 ");
         }
         String comfort = "舒适度:" + weather.suggestion.comf.txt;
         String carWash = "洗车指数:" + weather.suggestion.cw.txt;
@@ -269,15 +322,15 @@ public class WeatherActivity extends AppCompatActivity {
             case R.id.add_item:
                 Intent intent = new Intent(WeatherActivity.this, CityActivity.class);
                 startActivity(intent);
-                //finish();
                 break;
             case R.id.share_item:
                 Intent intent1 = new Intent(WeatherActivity.this, ShareActivity.class);
-                intent1.putExtra("weather_text", data[0]);
+                intent1.putExtra("weather_text", city + ": \n"
+                        + "今天: " + data[0] + "\n"
+                        + "明天：" + data[1] + "\n"
+                        + "后天：" + data[2] + "\n" + date + "发布");
                 startActivity(intent1);
                 break;
-            //case R.id.finish_item:
-            //    finish();
             default:
         }
         return true;
