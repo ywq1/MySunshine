@@ -25,7 +25,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private ProgressDialog progressDialog;
+    //private ProgressDialog progressDialog;
     SQLiteDatabase db;
     String[] b = new String[3181];
 
@@ -227,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    /*
     //显示进度对话框
     private void showProgressDialog(){
         if(progressDialog == null) {
@@ -242,4 +243,5 @@ public class MainActivity extends AppCompatActivity {
             progressDialog.dismiss();
         }
     }
+    */
 }

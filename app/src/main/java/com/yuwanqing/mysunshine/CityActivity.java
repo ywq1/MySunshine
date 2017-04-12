@@ -24,7 +24,9 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.yuwanqing.mysunshine.db.City;
+import com.yuwanqing.mysunshine.gson.Weather;
 import com.yuwanqing.mysunshine.util.HttpUtil;
+import com.yuwanqing.mysunshine.util.Utility;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,10 +43,12 @@ import okhttp3.Response;
 public class CityActivity extends AppCompatActivity {
     private String[] citys;
     private String[] foreigncities;
+    private String recentcity;
     private int j;
     private int k;
 
     private Button add;
+    private Button delete;
     private ListView cityLayout;
     private TextView cityText;
     private ListView cities;
@@ -66,13 +70,56 @@ public class CityActivity extends AppCompatActivity {
         for(int h=0;h<1678;h++) {
             foreigncities[h] = CityBase.fcity[h][0];
         }
-        //foreigncities = getForeignCities();
-        //cityLayout = (ListView) findViewById(R.id.city);
+        recentcity = getIntent().getStringExtra("weather_id");
         add = (Button) findViewById(R.id.add_city);
+        delete = (Button) findViewById(R.id.fanhui_city);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CityActivity.this, SecondActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        delete.setOnClickListener(new View.OnClickListener() {
+            Intent intent;
+            int flag = 0;
+            @Override
+            public void onClick(View v){
+                Weather weather = Utility.handleWeatherResponse(recentcity);
+                SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+                Cursor cursor = db.query("City", null, null, null, null, null, null);
+                if(cursor.moveToFirst()) {
+                    do{
+                        String id = cursor.getString(cursor.getColumnIndex("city_id"));
+                        if(weather.basic.id.equals(id)){
+                            if(isCities(weather.basic.id, citys)) {
+                                intent = new Intent(CityActivity.this, WeatherActivity.class);
+                                intent.putExtra("weather_id", recentcity);
+                            }else{
+                                intent = new Intent(CityActivity.this, WeatherForeignActivity.class);
+                                intent.putExtra("weather_id", recentcity);
+                            }
+                            flag = 1;
+                        }
+                    }while(cursor.moveToNext());
+                }
+                if(flag == 0) {
+                    if (cursor.moveToFirst()) {
+                        String id = cursor.getString(cursor.getColumnIndex("city_id"));
+                        if(isCities(id, citys)) {
+                            intent = new Intent(CityActivity.this, WeatherActivity.class);
+                            intent.putExtra("weather_id", id);
+                        }else{
+                            intent = new Intent(CityActivity.this, WeatherForeignActivity.class);
+                            intent.putExtra("weather_id", id);
+                        }
+                        flag = 2;
+                    } else {
+                        flag = 3;
+                        intent = new Intent(CityActivity.this, SecondActivity.class);
+                    }
+                }
                 startActivity(intent);
                 finish();
             }
@@ -180,24 +227,6 @@ public class CityActivity extends AppCompatActivity {
         return city;
     }
 
-    //获取所有城市的id和name
-    public String[] getForeignCities() {
-        final String[] city;
-        k = 0;
-        city = new String[4572];
-        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();;
-        //查询Book表中的所有的数据
-        Cursor cursor2 = db.query("ForeignCity", null, null, null, null, null, null);
-        cursor2.moveToFirst();
-        for(int j=0;j<4572;j++,cursor2.moveToNext()){
-            String name_country = cursor2.getString(cursor2.getColumnIndex("foreigncity_name_country"));
-            String name = cursor2.getString(cursor2.getColumnIndex("foreigncity_name"));
-            String id = cursor2.getString(cursor2.getColumnIndex("foreigncity_id"));
-            city[j] = id;
-        }
-        return city;
-    }
-
     //判断输入的城市id是否在可查询的城市数组里
     public boolean isCities(String city_info, String[] cityfc) {
         int flag = 0;
@@ -212,45 +241,5 @@ public class CityActivity extends AppCompatActivity {
         } else {
             return false;
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        mClient.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "City Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.yuwanqing.mysunshine/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(mClient, viewAction);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "City Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.yuwanqing.mysunshine/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(mClient, viewAction);
-        mClient.disconnect();
     }
 }

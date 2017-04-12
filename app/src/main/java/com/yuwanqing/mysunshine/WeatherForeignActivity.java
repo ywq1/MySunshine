@@ -33,6 +33,13 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class WeatherForeignActivity extends AppCompatActivity {
+    private TextView xiangyou;
+    private TextView xiangzuo;
+    private String city_you;
+    private String recentcity;
+    private String[] citys;
+    private String[] foreigncities;
+
     private FrameLayout mBackground;
     private SwipeRefreshLayout swipeRefresh;//下拉刷新
     private String mWeatherId;
@@ -60,8 +67,16 @@ public class WeatherForeignActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.foreign_toolbar);
         setSupportActionBar(toolbar);
-        data = new String[3];//
+        data = new String[3];
+        citys = new String[3181];
+        citys = getCities();
+        foreigncities = new String[1678];
+        for(int h=0;h<1678;h++) {
+            foreigncities[h] = CityBase.fcity[h][0];
+        }
         //初始化各控件
+        xiangyou = (TextView) findViewById(R.id.foreign_xiangyou);
+        xiangzuo = (TextView) findViewById(R.id.foreign_xiangzuo);
         mBackground = (FrameLayout) findViewById(R.id.foreign_main_bg);
         weatherLayout = (ScrollView) findViewById(R.id.foreign_weather_layout);
         titleCity = (TextView) findViewById(R.id.city_text);
@@ -82,6 +97,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
             requestWeather(mWeatherId1);
         }
         else{
+            recentcity = mWeatherId;
             final Weather weather = Utility.handleWeatherResponse(mWeatherId);
             mWeatherId1 = weather.basic.id;
             showWeatherInfo(weather);
@@ -90,6 +106,86 @@ public class WeatherForeignActivity extends AppCompatActivity {
             @Override
             public void onRefresh(){
                 requestWeather(mWeatherId1);
+            }
+        });
+        xiangyou.setOnClickListener(new View.OnClickListener() {
+            String name;
+            String id;
+            Intent intent;
+            int flag=0;
+            @Override
+            public void onClick(View v) {
+                SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+                Cursor cursor = db.query("City", null, null, null, null, null, null);
+                if(cursor.moveToFirst()) {
+                    do{
+                        name = cursor.getString(cursor.getColumnIndex("city_name"));
+                        if(name.equals(city_you)){
+                            if(cursor.moveToNext()) {
+                                id = cursor.getString(cursor.getColumnIndex("city_id"));
+                                if(isCities(id, citys)) {
+                                    xiangyou.setVisibility(View.GONE);
+                                    intent = new Intent(WeatherForeignActivity.this, WeatherActivity.class);
+                                    intent.putExtra("weather_id", id);
+                                }else {
+                                    xiangyou.setVisibility(View.GONE);
+                                    intent = new Intent(WeatherForeignActivity.this, WeatherForeignActivity.class);
+                                    intent.putExtra("weather_id", id);
+                                }
+                                flag=1;
+                            }
+                            else{
+                                xiangyou.setVisibility(View.GONE);
+                            }
+                            break;
+                        }
+                    }while(cursor.moveToNext());
+                }
+                cursor.close();
+                if(flag==1) {
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
+        xiangzuo.setOnClickListener(new View.OnClickListener() {
+            String name;
+            String id;
+            Intent intent;
+            int flag=0;
+            @Override
+            public void onClick(View v) {
+                SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+                Cursor cursor = db.query("City", null, null, null, null, null, null);
+                if(cursor.moveToLast()) {
+                    do{
+                        name = cursor.getString(cursor.getColumnIndex("city_name"));
+                        if(name.equals(city_you)){
+                            if(cursor.moveToPrevious()) {
+                                id = cursor.getString(cursor.getColumnIndex("city_id"));
+                                if(isCities(id, citys)) {
+                                    xiangzuo.setVisibility(View.GONE);
+                                    intent = new Intent(WeatherForeignActivity.this, WeatherActivity.class);
+                                    intent.putExtra("weather_id", id);
+                                }else{
+                                    xiangzuo.setVisibility(View.GONE);
+                                    intent = new Intent(WeatherForeignActivity.this, WeatherForeignActivity.class);
+                                    intent.putExtra("weather_id", id);
+                                }
+                                flag=1;
+                            }
+                            else{
+                                xiangzuo.setVisibility(View.GONE);
+                            }
+                            break;
+                        }
+                    }while(cursor.moveToPrevious());
+                }
+                cursor.close();
+                if(flag==1) {
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }
@@ -104,6 +200,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
+                recentcity = responseText;
                 final Weather weather = Utility.handleWeatherResponse(responseText);
                 runOnUiThread(new Runnable() {//从当前线程切换到主线程进行判断
                     @Override
@@ -173,6 +270,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
             db.insert("City", null, values);
             values.clear();
         }
+        city_you = cityName;
 
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
@@ -199,13 +297,15 @@ public class WeatherForeignActivity extends AppCompatActivity {
         }
         weatherLayout.setVisibility(View.VISIBLE);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add_item:
                 Intent intent = new Intent(WeatherForeignActivity.this, CityActivity.class);
+                intent.putExtra("weather_id", recentcity);
                 startActivity(intent);
-                //finish();
+                finish();
                 break;
             case R.id.share_item:
                 Intent intent1 = new Intent(WeatherForeignActivity.this, ShareActivity.class);
@@ -377,5 +477,41 @@ public class WeatherForeignActivity extends AppCompatActivity {
         if(weatherinfo.equals("冷")) {
             mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.cold));
         }
+    }
+
+    public String[] getCities() {
+        final String[] city;
+        city = new String[3181];
+        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();;
+        //查询Book表中的所有的数据
+        Cursor cursor = db.query("City_id", null, null, null, null, null, null);
+        cursor.moveToFirst();
+        for(int i=0;i<3181;i++,cursor.moveToNext()) {
+            //遍历Cursor对象，取出数据并打印
+            String id = cursor.getString(cursor.getColumnIndex("city_id"));
+            city[i] = id;
+        }
+        return city;
+    }
+
+    //判断输入的城市id是否在可查询的城市数组里
+    public boolean isCities(String city_info, String[] cityfc) {
+        int flag = 0;
+        for (int j = 0; j < cityfc.length; j++) {
+            if (city_info.equals(cityfc[j])) {
+                flag = 1;
+                break;
+            }
+        }
+        if (flag == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

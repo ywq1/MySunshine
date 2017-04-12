@@ -33,11 +33,30 @@
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
             <include layout="@layout/now"/>
+
             <include layout="@layout/forecast"/>
             <include layout="@layout/aqi"/>
             <include layout="@layout/suggestion"/>
         </LinearLayout>
     </ScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
+    <TextView
+        android:layout_width="20dp"
+        android:layout_height="200dp"
+        android:id="@+id/xiangzuo"
+        android:layout_gravity="center|left"
+        android:gravity="center"
+        android:text="〈"
+        android:textSize="40sp"
+        android:textColor="#fff"/>
+    <TextView
+        android:layout_width="20dp"
+        android:layout_height="200dp"
+        android:id="@+id/xiangyou"
+        android:layout_gravity="center|right"
+        android:gravity="center"
+        android:text="〉"
+        android:textSize="40sp"
+        android:textColor="#fff"/>
 
 </FrameLayout>

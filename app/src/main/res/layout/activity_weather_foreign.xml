@@ -37,5 +37,23 @@
             </LinearLayout>
         </ScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
+    <TextView
+        android:layout_width="20dp"
+        android:layout_height="200dp"
+        android:id="@+id/foreign_xiangzuo"
+        android:layout_gravity="center|left"
+        android:gravity="center"
+        android:text="〈"
+        android:textSize="40sp"
+        android:textColor="#fff"/>
+    <TextView
+        android:layout_width="20dp"
+        android:layout_height="200dp"
+        android:id="@+id/foreign_xiangyou"
+        android:layout_gravity="center|right"
+        android:gravity="center"
+        android:text="〉"
+        android:textSize="40sp"
+        android:textColor="#fff"/>
 
 </FrameLayout>
