@@ -8,35 +8,23 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
+import android.app.ProgressDialog;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-import com.yuwanqing.mysunshine.gson.Weather;
-import com.yuwanqing.mysunshine.util.HttpUtil;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class SecondActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
 
     private LocationClient mLocationClient;//LocationClient定位服务的客户端
     private StringBuilder currentPosition;
@@ -83,12 +71,12 @@ public class SecondActivity extends AppCompatActivity {
         setContentView(R.layout.activity_second);
 
         SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
-        ary = new String[4859];//3181+1678
+        ary = new String[4881];//3181+1700
         ary2 = new String[3181][3];
         ary1 = new String[3181][2];
-        ary3 = new String[1678][2];
+        ary3 = new String[1700][2];
         //查询Book表中的所有的数据
-        Cursor cursor = db.query("City_id", null, null, null, null, null, null);
+        Cursor cursor = db.query("City_China", null, null, null, null, null, null);
         cursor.moveToFirst();
         for (int i = 0; i < 3181; i++, cursor.moveToNext()) {
             //遍历Cursor对象，取出数据并打印
@@ -103,12 +91,17 @@ public class SecondActivity extends AppCompatActivity {
             ary1[i][0] = id;
             ary1[i][1] = name_country;
         }
-        for (int j = 0; j < 1678; j++) {
-            ary[3181 + j] = CityBase.fcity[j][2] + "-" + CityBase.fcity[j][4];
-            ary3[j][0] = CityBase.fcity[j][0];
-            ary3[j][1] = CityBase.fcity[j][2] + "-" + CityBase.fcity[j][4];
+        Cursor cursor0 = db.query("ForeignCity", null, null, null, null, null, null);
+        cursor0.moveToFirst();
+        for (int j = 0; j < 1700; j++, cursor0.moveToNext()) {
+            String name_country = cursor0.getString(cursor0.getColumnIndex("foreigncity_name_country"));
+            String id = cursor0.getString(cursor0.getColumnIndex("foreigncity_id"));
+            ary[3181+j] = name_country;
+            ary3[j][0] = id;
+            ary3[j][1] = name_country;
         }
         cursor.close();
+        cursor0.close();
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, ary);
 
         button = (Button) findViewById(R.id.tianjia);
@@ -119,6 +112,7 @@ public class SecondActivity extends AppCompatActivity {
         dingwei1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Intent intent;
                 String[] city_qu = new String[3181];
                 for (int i = 0; i < 3181; i++) {
                     city_qu[i] = ary2[i][0] + "区" + ary2[i][1] + "市";
@@ -144,19 +138,28 @@ public class SecondActivity extends AppCompatActivity {
                     Toast.makeText(SecondActivity.this, "没有获得定位权限", Toast.LENGTH_SHORT).show();
                 } else {
                     requestLocation();
-                    if(locationinfo == null) {
+                    if (locationinfo == null) {
+                        //showProgressDialog();
                         Toast.makeText(SecondActivity.this, "请再点击一次", Toast.LENGTH_SHORT).show();
                     }
-                    else{
-                        int m = 0;
-                        for (m = 0; m < 3181; m++) {
-                            if (locationinfo.equals(city_qu[m]))
-                                break;
+                    else {
+                    //closeProgressDialog();
+                        String ee = locationinfo;
+                        if(ee.equals("nullnull")) {
+                            int ew = 1;
+                            Toast.makeText(SecondActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
                         }
-                        Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
-                        intent.putExtra("weather_id", ary2[m][2]);
-                        startActivity(intent);
-                        finish();
+                        else {
+                            int m = 0;
+                            for (m = 0; m < 3181; m++) {
+                                if (locationinfo.equals(city_qu[m]))
+                                    break;
+                            }
+                            Intent intent = new Intent(SecondActivity.this, WeatherActivity.class);
+                            intent.putExtra("weather_id", ary2[m][2]);
+                            startActivity(intent);
+                            finish();
+                        }
                     }
                 }
             }
@@ -466,6 +469,21 @@ public class SecondActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void showProgressDialog(){
+        if(progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("正在加载...");
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.show();
+    }
+    //关闭进度对话框
+    private void closeProgressDialog() {
+        if(progressDialog != null) {
+            progressDialog.dismiss();
+        }
     }
 
 }

@@ -66,10 +66,8 @@ public class CityActivity extends AppCompatActivity {
         setContentView(R.layout.activity_city);
         citys = new String[3181];
         citys = getCities();
-        foreigncities = new String[1678];
-        for(int h=0;h<1678;h++) {
-            foreigncities[h] = CityBase.fcity[h][0];
-        }
+        foreigncities = new String[1700];
+        foreigncities = getForeignCities();
         recentcity = getIntent().getStringExtra("weather_id");
         add = (Button) findViewById(R.id.add_city);
         delete = (Button) findViewById(R.id.fanhui_city);
@@ -217,11 +215,23 @@ public class CityActivity extends AppCompatActivity {
         city = new String[3181];
         SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();;
         //查询Book表中的所有的数据
-        Cursor cursor = db.query("City_id", null, null, null, null, null, null);
+        Cursor cursor = db.query("City_China", null, null, null, null, null, null);
         cursor.moveToFirst();
         for(int i=0;i<3181;i++,cursor.moveToNext()) {
             //遍历Cursor对象，取出数据并打印
             String id = cursor.getString(cursor.getColumnIndex("city_id"));
+            city[i] = id;
+        }
+        return city;
+    }
+    public String[] getForeignCities() {
+        final String[] city;
+        city = new String[1700];
+        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+        Cursor cursor = db.query("ForeignCity", null, null, null, null, null, null);
+        cursor.moveToFirst();
+        for(int i = 0;i<1700;i++,cursor.moveToNext()) {
+            String id = cursor.getString(cursor.getColumnIndex("foreigncity_id"));
             city[i] = id;
         }
         return city;

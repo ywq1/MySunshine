@@ -12,8 +12,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public static final String CREATE_CITY = "create table City ("
             + "id integer primary key autoincrement, "
             + "city_id text, "
-            + "city_name text)";
-    public static final String CREATE_CITY1 = "create table City_id ("
+            + "city_name text, "
+            + "city_weather text)";
+    public static final String CREATE_CITY1 = "create table City_China ("
             + "id integer primary key autoincrement, "
             + "city_en text, "
             + "city_name text, "
@@ -25,6 +26,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             + "foreigncity_id text, "
             + "foreigncity_en text, "
             + "foreigncity_name text, "
+            + "foreigncity_country_en text, "
             + "foreigncity_country text, "
             + "foreigncity_name_country text)";
     private Context mContext;

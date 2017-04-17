@@ -33,7 +33,6 @@
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
             <include layout="@layout/now"/>
-
             <include layout="@layout/forecast"/>
             <include layout="@layout/aqi"/>
             <include layout="@layout/suggestion"/>

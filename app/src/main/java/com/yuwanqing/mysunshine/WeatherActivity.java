@@ -47,7 +47,6 @@ public class WeatherActivity extends AppCompatActivity {
     private String city_you;
     private String recentcity;
     private String[] citys;
-    private String[] foreigncities;
 
     private FrameLayout mBackground;
     private SwipeRefreshLayout swipeRefresh;//下拉刷新
@@ -85,25 +84,18 @@ public class WeatherActivity extends AppCompatActivity {
     private String so2=null;
     private String co=null;
     private String o3=null;
-    private StackManager stack;
+    private String responseText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
-        stack = CityBase.stackHelper.getStackManager();
-        stack.pushActivity(this);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         data = new String[3];
         citys = new String[3181];
         citys = getCities();
-        foreigncities = new String[1678];
-        for(int h=0;h<1678;h++) {
-            foreigncities[h] = CityBase.fcity[h][0];
-        }
         //初始化各控件
         xiangyou = (TextView) findViewById(R.id.xiangyou);
         xiangzuo = (TextView) findViewById(R.id.xiangzuo);
@@ -136,10 +128,36 @@ public class WeatherActivity extends AppCompatActivity {
         weatherLayout.setVisibility(View.INVISIBLE);
         if(mWeatherId.length()<15) {
             mWeatherId1 = mWeatherId;
-            requestWeather(mWeatherId1);
+            SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+            Cursor cursor = db.query("City", null, null, null, null, null, null);
+            String city_weather = null;
+            int flag = 0;
+            if (cursor.moveToFirst()) {
+                do{
+                    String id = cursor.getString(cursor.getColumnIndex("city_id"));
+                    String name = cursor.getString(cursor.getColumnIndex("city_name"));
+                    city_weather = cursor.getString(cursor.getColumnIndex("city_weather"));
+                    if(id.equals(mWeatherId1)){
+                        flag = 1;
+                        break;
+                    }else if(name.equals(mWeatherId1)) {
+                        flag = 1;
+                        break;
+                    }
+                }while(cursor.moveToNext());
+            }
+            if(flag == 1) {
+                responseText = city_weather;
+                Weather weather = Utility.handleWeatherResponse(city_weather);
+                showWeatherInfo(weather);
+            }
+            else {
+                requestWeather(mWeatherId1);
+            }
         }
         else{
             recentcity = mWeatherId;
+            responseText = mWeatherId;
             final Weather weather = Utility.handleWeatherResponse(mWeatherId);
             mWeatherId1 = weather.basic.id;
             showWeatherInfo(weather);
@@ -256,20 +274,16 @@ public class WeatherActivity extends AppCompatActivity {
     public void requestWeather(final String weatherId) {
         String weatherUrl = "https://free-api.heweather.com/v5/weather?city=" +
                 weatherId + "&key=07b2cafa9b3442cd9bc9d6c666bc9402";
-        //https://free-api.heweather.com/v5/weather?city=beijing&key=07b2cafa9b3442cd9bc9d6c666bc9402
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
+                responseText = response.body().string();
                 recentcity = responseText;
                 final Weather weather = Utility.handleWeatherResponse(responseText);
                 runOnUiThread(new Runnable() {//从当前线程切换到主线程进行判断
                     @Override
                     public void run() {
                         if(weather != null && "ok".equals(weather.status)) {
-                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                            editor.putString("weather", responseText);
-                            editor.apply();
                             showWeatherInfo(weather);
                         }
                         else {
@@ -296,6 +310,10 @@ public class WeatherActivity extends AppCompatActivity {
      * 处理并展示Weather实体类中的数据
      */
     private void showWeatherInfo(Weather weather) {
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+        editor.putString("weather", responseText);
+        editor.apply();
+
         String cityName = weather.basic.city;
         city = cityName;
         date = weather.basic.update.loc;
@@ -334,7 +352,6 @@ public class WeatherActivity extends AppCompatActivity {
                                         if(cursor3.moveToFirst()) {
                                             do{
                                                 String name3 = cursor3.getString(cursor3.getColumnIndex("city_name"));
-                                                String id3 = cursor3.getString(cursor3.getColumnIndex("city_id"));
                                                 if(name3.equals(cityName)) {
                                                     flag = 1;
                                                     break;
@@ -366,8 +383,14 @@ public class WeatherActivity extends AppCompatActivity {
             ContentValues values = new ContentValues();
             values.put("city_name", cityName);
             values.put("city_id", cityId);
+            values.put("city_weather", responseText);
             db.insert("City", null, values);
             values.clear();
+        }
+        else{
+            ContentValues values = new ContentValues();
+            values.put("city_weather", responseText);
+            db.update("City", values, "city_id = ?", new String[] { cityId });
         }
         city_you = cityName;
 
@@ -443,7 +466,6 @@ public class WeatherActivity extends AppCompatActivity {
                 startActivity(intent1);
                 break;
             case R.id.finish_item:
-                stack.popAllActivitys();
             default:
         }
         return true;
@@ -613,7 +635,7 @@ public class WeatherActivity extends AppCompatActivity {
         city = new String[3181];
         SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();;
         //查询Book表中的所有的数据
-        Cursor cursor = db.query("City_id", null, null, null, null, null, null);
+        Cursor cursor = db.query("City_China", null, null, null, null, null, null);
         cursor.moveToFirst();
         for(int i=0;i<3181;i++,cursor.moveToNext()) {
             //遍历Cursor对象，取出数据并打印

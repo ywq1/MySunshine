@@ -27,7 +27,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
     //private ProgressDialog progressDialog;
     SQLiteDatabase db;
-    String[] b = new String[3181];
+    String[] b = new String[3181];//4572
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             db = CityBase.dbHelper.getWritableDatabase();
             String[] city = new String[3181];
             //查询Book表中的所有的数据
-            Cursor cursor = db.query("City_id", null, null, null, null, null, null);
+            Cursor cursor = db.query("City_China", null, null, null, null, null, null);
             cursor.moveToFirst();
             for(int j=0;j<3181;j++){
                 String name = cursor.getString(cursor.getColumnIndex("city_name"));
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                         values.put("city_leader", cc);
                         values.put("city_id", ff);
                         values.put("city_name_country", bb +"-" + cc + "，" + dd + "，" +ee);
-                        db.insert("City_id", null, values);
+                        db.insert("City_China", null, values);
                         values.clear();
                     }
                 } catch (Exception e) {
@@ -121,6 +121,17 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(b[3180] != null) {
                     //closeProgressDialog();
+                    for(int j = 0;j<CityBase.fcity.length;j++) {
+                        ContentValues values = new ContentValues();
+                        values.put("foreigncity_id", CityBase.fcity[j][0]);
+                        values.put("foreigncity_en", CityBase.fcity[j][1]);
+                        values.put("foreigncity_name", CityBase.fcity[j][2]);
+                        values.put("foreigncity_country_en", CityBase.fcity[j][3]);
+                        values.put("foreigncity_country", CityBase.fcity[j][4]);
+                        values.put("foreigncity_name_country", CityBase.fcity[j][2] +"-" + CityBase.fcity[j][4]);
+                        db.insert("ForeignCity", null, values);
+                        values.clear();
+                    }
                     Intent intent = new Intent(MainActivity.this, SecondActivity.class);
                     startActivity(intent);
                     finish();
@@ -137,49 +148,6 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
-        /*
-        HttpUtil.sendOkHttpRequest(weatherUrl1, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
-                try{
-                    JSONArray jsonArray = new JSONArray(responseText);
-                    int a = jsonArray.length();
-                    for(int i=0;i<a;i++){
-                        JSONObject resultsObject = jsonArray.getJSONObject(i);
-                        String aa = resultsObject.getString("id");
-                        String bb = resultsObject.getString("cityEn");
-                        String cc = resultsObject.getString("cityZh");
-                        String dd = resultsObject.getString("continent");
-                        String ee = resultsObject.getString("countryEn");
-                        ContentValues values = new ContentValues();
-
-                        c[i] = aa;
-
-                        values.put("foreigncity_id", aa);
-                        values.put("foreigncity_en", bb);
-                        values.put("foreigncity_name", cc);
-                        values.put("foreigncity_continent", dd);
-                        values.put("foreigncity_country", ee);
-                        values.put("foreigncity_name_country", cc +"-" + ee + "，" + dd);
-                        db.insert("ForeignCity", null, values);
-                        values.clear();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });//return 1;*/
     }
     //获取所有城市的id和name
     public void getForeignCities() {
@@ -192,22 +160,19 @@ public class MainActivity extends AppCompatActivity {
                 try{
                     JSONArray jsonArray = new JSONArray(responseText);
                     int a = jsonArray.length();
-                    int t=9;
                     for(int i=0;i<a;i++){
                         JSONObject resultsObject = jsonArray.getJSONObject(i);
                         String aa = resultsObject.getString("id");
                         String bb = resultsObject.getString("cityEn");
                         String cc = resultsObject.getString("cityZh");
-                        String dd = resultsObject.getString("continent");
                         String ee = resultsObject.getString("countryEn");
                         ContentValues values = new ContentValues();
 
                         values.put("foreigncity_id", aa);
                         values.put("foreigncity_en", bb);
                         values.put("foreigncity_name", cc);
-                        values.put("foreigncity_continent", dd);
                         values.put("foreigncity_country", ee);
-                        values.put("foreigncity_name_country", cc +"-" + ee + "，" + dd);
+                        values.put("foreigncity_name_country", cc +"-" + ee);
                         db1.insert("ForeignCity", null, values);
                         values.clear();
                     }
