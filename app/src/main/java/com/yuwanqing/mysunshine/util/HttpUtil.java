@@ -10,6 +10,7 @@ public class HttpUtil {
     public static void sendOkHttpRequest(String address, okhttp3.Callback callback){
         OkHttpClient client = new OkHttpClient();//首先创建一个OkHttpClient的实例
         Request request = new Request.Builder().url(address).build();//想要发送一条HTTP的请求，就需要创建一个Request对象，用url（）方法来设置目标的网络地址
-        client.newCall(request).enqueue(callback);//发送请求并获取服务器返回的数据
+        client.newCall(request).enqueue(callback);//发送请求并获取服务器返回的数据，enqueue()方法内部会帮我们开好子线程
+        //然后在子线程中执行http请求，并最终将请求结果会掉到OkHttp3.Callback中
     }
 }

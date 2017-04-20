@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -67,8 +68,30 @@ public class SecondActivity extends AppCompatActivity {
         //在使用SDK各组件之前初始化context信息，传入ApplicationContext，注意该方法要再setContentView方法之前实现
         mLocationClient = new LocationClient(getApplicationContext());
         //注册一个定位监听器，当获取到位置信息的时候，就会回调这个定位监听器
-        mLocationClient.registerLocationListener(new SecondActivity.MyLocationListener());
+        mLocationClient.registerLocationListener(new MyLocationListener());
         setContentView(R.layout.activity_second);
+        List<String> permissionList = new ArrayList<>();
+        //判断ACCESS_COARSE_LOCATION,ACCESS_FINE_LOCATION（是同一个权限组）,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE这4个
+        //权限有没有被授权，如果没被授权就添加到List集合中
+        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(android.Manifest.permission.READ_PHONE_STATE);
+        }
+        if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (!permissionList.isEmpty()) {
+            String[] permissions = permissionList.toArray(new String[permissionList.size()]);
+            ActivityCompat.requestPermissions(SecondActivity.this, permissions, 1);
+            Toast.makeText(SecondActivity.this, "没有获得定位权限", Toast.LENGTH_SHORT).show();
+        } else {
+            requestLocation();
+        }
 
         SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
         ary = new String[4881];//3181+1700
@@ -113,43 +136,37 @@ public class SecondActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //Intent intent;
-                String[] city_qu = new String[3181];
-                for (int i = 0; i < 3181; i++) {
-                    city_qu[i] = ary2[i][0] + "区" + ary2[i][1] + "市";
-                }
-                List<String> permissionList = new ArrayList<>();
-                //判断ACCESS_COARSE_LOCATION,ACCESS_FINE_LOCATION（是同一个权限组）,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE这4个
-                //权限有没有被授权，如果没被授权就添加到List集合中
+                List<String> permissionList1 = new ArrayList<>();
                 if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED) {
-                    permissionList.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
+                    permissionList1.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
                 }
                 if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.READ_PHONE_STATE)
                         != PackageManager.PERMISSION_GRANTED) {
-                    permissionList.add(android.Manifest.permission.READ_PHONE_STATE);
+                    permissionList1.add(android.Manifest.permission.READ_PHONE_STATE);
                 }
                 if (ContextCompat.checkSelfPermission(SecondActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
-                    permissionList.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    permissionList1.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 }
-                if (!permissionList.isEmpty()) {
-                    String[] permissions = permissionList.toArray(new String[permissionList.size()]);
+                if (!permissionList1.isEmpty()) {
+                    String[] permissions = permissionList1.toArray(new String[permissionList1.size()]);
                     ActivityCompat.requestPermissions(SecondActivity.this, permissions, 1);
                     Toast.makeText(SecondActivity.this, "没有获得定位权限", Toast.LENGTH_SHORT).show();
-                } else {
+                }else {
                     requestLocation();
+                    String[] city_qu = new String[3181];
+                    for (int i = 0; i < 3181; i++) {
+                        city_qu[i] = ary2[i][0] + "区" + ary2[i][1] + "市";
+                    }
                     if (locationinfo == null) {
                         //showProgressDialog();
                         Toast.makeText(SecondActivity.this, "请再点击一次", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                    //closeProgressDialog();
+                    } else {
                         String ee = locationinfo;
-                        if(ee.equals("nullnull")) {
-                            int ew = 1;
+                        if (ee.equals("nullnull")) {
                             Toast.makeText(SecondActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
+                        } else {
                             int m = 0;
                             for (m = 0; m < 3181; m++) {
                                 if (locationinfo.equals(city_qu[m]))
