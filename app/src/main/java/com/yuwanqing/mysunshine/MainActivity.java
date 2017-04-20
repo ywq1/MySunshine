@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
             cursor.close();
             final Weather weather1 = Utility.handleWeatherResponse(weatherString);
             String city1 = weather1.basic.city;
-            if(isCities(city1, city) == 1) {
+            if(Utility.isCities(city1, city)) {
                 Intent intent = new Intent(this, WeatherActivity.class);
                 intent.putExtra("weather_id", weatherString);
                 startActivity(intent);
@@ -69,22 +69,6 @@ public class MainActivity extends AppCompatActivity {
             getCities();
         }
 
-    }
-    //判断输入的城市id是否在可查询的城市数组里
-    public int isCities(String city_info, String[] cityfc) {
-        int flag = 0;
-        for(int j=0;j<cityfc.length;j++){
-            if(city_info.equals(cityfc[j])){
-                flag = 1;
-                break;
-            }
-        }
-        if(flag==1) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
     }
     //获取所有城市的id和name
     public void getCities() {
@@ -149,64 +133,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    //获取所有城市的id和name
-    public void getForeignCities() {
-        final SQLiteDatabase db1 = CityBase.dbHelper.getWritableDatabase();
-        String weatherUrl = "https://cdn.heweather.com/world-top-city-list.json";
-        HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
-                try{
-                    JSONArray jsonArray = new JSONArray(responseText);
-                    int a = jsonArray.length();
-                    for(int i=0;i<a;i++){
-                        JSONObject resultsObject = jsonArray.getJSONObject(i);
-                        String aa = resultsObject.getString("id");
-                        String bb = resultsObject.getString("cityEn");
-                        String cc = resultsObject.getString("cityZh");
-                        String ee = resultsObject.getString("countryEn");
-                        ContentValues values = new ContentValues();
-
-                        values.put("foreigncity_id", aa);
-                        values.put("foreigncity_en", bb);
-                        values.put("foreigncity_name", cc);
-                        values.put("foreigncity_country", ee);
-                        values.put("foreigncity_name_country", cc +"-" + ee);
-                        db1.insert("ForeignCity", null, values);
-                        values.clear();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
-    }
-    /*
-    //显示进度对话框
-    private void showProgressDialog(){
-        if(progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("正在加载...");
-            progressDialog.setCanceledOnTouchOutside(false);
-        }
-        progressDialog.show();
-    }
-    //关闭进度对话框
-    private void closeProgressDialog() {
-        if(progressDialog != null) {
-            progressDialog.dismiss();
-        }
-    }
-    */
 }

@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SecondActivity extends AppCompatActivity {
-    private ProgressDialog progressDialog;
-
     private LocationClient mLocationClient;//LocationClient定位服务的客户端
     private StringBuilder currentPosition;
     private Button dingwei1;
@@ -35,7 +33,6 @@ public class SecondActivity extends AppCompatActivity {
     private String[][] ary2;
     private String[][] ary1;
     private String[][] ary3;
-    private int k;
 
     private Button button;
     private AutoCompleteTextView editCity;
@@ -486,21 +483,6 @@ public class SecondActivity extends AppCompatActivity {
                 finish();
             }
         });
-    }
-
-    private void showProgressDialog(){
-        if(progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("正在加载...");
-            progressDialog.setCanceledOnTouchOutside(false);
-        }
-        progressDialog.show();
-    }
-    //关闭进度对话框
-    private void closeProgressDialog() {
-        if(progressDialog != null) {
-            progressDialog.dismiss();
-        }
     }
 
 }

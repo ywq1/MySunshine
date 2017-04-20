@@ -25,6 +25,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.util.Util;
 import com.yuwanqing.mysunshine.db.City;
 import com.yuwanqing.mysunshine.gson.Forecast;
 import com.yuwanqing.mysunshine.gson.Weather;
@@ -95,7 +96,7 @@ public class WeatherActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         data = new String[3];
         citys = new String[3181];
-        citys = getCities();
+        citys = Utility.getCities();
         //初始化各控件
         xiangyou = (TextView) findViewById(R.id.xiangyou);
         xiangzuo = (TextView) findViewById(R.id.xiangzuo);
@@ -160,7 +161,27 @@ public class WeatherActivity extends AppCompatActivity {
             responseText = mWeatherId;
             final Weather weather = Utility.handleWeatherResponse(mWeatherId);
             mWeatherId1 = weather.basic.id;
-            showWeatherInfo(weather);
+            SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+            Cursor cursor = db.query("City", null, null, null, null, null, null);
+            int flag = 0;
+            if (cursor.moveToFirst()) {
+                do{
+                    String id = cursor.getString(cursor.getColumnIndex("city_id"));
+                    if(id.equals(mWeatherId1)){
+                        flag = 1;
+                        break;
+                    }
+                }while(cursor.moveToNext());
+            }
+            if(flag == 1) {
+                showWeatherInfo(weather);
+            }
+            else {
+                Intent intent = new Intent(WeatherActivity.this, CityActivity.class);
+                intent.putExtra("weather_id", recentcity);
+                startActivity(intent);
+                finish();
+            }
         }
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -202,7 +223,7 @@ public class WeatherActivity extends AppCompatActivity {
                         if(name.equals(city_you)){
                             if(cursor.moveToNext()) {
                                 id = cursor.getString(cursor.getColumnIndex("city_id"));
-                                if(isCities(id, citys)) {
+                                if(Utility.isCities(id, citys)) {
                                     xiangyou.setVisibility(View.GONE);
                                     intent = new Intent(WeatherActivity.this, WeatherActivity.class);
                                     intent.putExtra("weather_id", id);
@@ -242,7 +263,7 @@ public class WeatherActivity extends AppCompatActivity {
                         if(name.equals(city_you)){
                             if(cursor.moveToPrevious()) {
                                 id = cursor.getString(cursor.getColumnIndex("city_id"));
-                                if(isCities(id, citys)) {
+                                if(Utility.isCities(id, citys)) {
                                     xiangzuo.setVisibility(View.GONE);
                                     intent = new Intent(WeatherActivity.this, WeatherActivity.class);
                                     intent.putExtra("weather_id", id);
@@ -627,37 +648,6 @@ public class WeatherActivity extends AppCompatActivity {
         }
         if(weatherinfo.equals("冷")) {
             mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.cold));
-        }
-    }
-
-    public String[] getCities() {
-        final String[] city;
-        city = new String[3181];
-        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();;
-        //查询Book表中的所有的数据
-        Cursor cursor = db.query("City_China", null, null, null, null, null, null);
-        cursor.moveToFirst();
-        for(int i=0;i<3181;i++,cursor.moveToNext()) {
-            //遍历Cursor对象，取出数据并打印
-            String id = cursor.getString(cursor.getColumnIndex("city_id"));
-            city[i] = id;
-        }
-        return city;
-    }
-
-    //判断输入的城市id是否在可查询的城市数组里
-    public boolean isCities(String city_info, String[] cityfc) {
-        int flag = 0;
-        for (int j = 0; j < cityfc.length; j++) {
-            if (city_info.equals(cityfc[j])) {
-                flag = 1;
-                break;
-            }
-        }
-        if (flag == 1) {
-            return true;
-        } else {
-            return false;
         }
     }
 

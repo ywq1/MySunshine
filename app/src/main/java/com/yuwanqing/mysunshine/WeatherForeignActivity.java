@@ -68,9 +68,9 @@ public class WeatherForeignActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         data = new String[3];
         citys = new String[3181];
-        citys = getCities();
+        citys = Utility.getCities();
         foreigncities = new String[1700];
-        foreigncities = getForeignCities();
+        foreigncities = Utility.getForeignCities();
         //初始化各控件
         xiangyou = (TextView) findViewById(R.id.foreign_xiangyou);
         xiangzuo = (TextView) findViewById(R.id.foreign_xiangzuo);
@@ -124,7 +124,27 @@ public class WeatherForeignActivity extends AppCompatActivity {
             responseText = mWeatherId;
             final Weather weather = Utility.handleWeatherResponse(mWeatherId);
             mWeatherId1 = weather.basic.id;
-            showWeatherInfo(weather);
+            SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+            Cursor cursor = db.query("City", null, null, null, null, null, null);
+            int flag = 0;
+            if (cursor.moveToFirst()) {
+                do{
+                    String id = cursor.getString(cursor.getColumnIndex("city_id"));
+                    if(id.equals(mWeatherId1)){
+                        flag = 1;
+                        break;
+                    }
+                }while(cursor.moveToNext());
+            }
+            if(flag == 1) {
+                showWeatherInfo(weather);
+            }
+            else {
+                Intent intent = new Intent(WeatherForeignActivity.this, CityActivity.class);
+                intent.putExtra("weather_id", recentcity);
+                startActivity(intent);
+                finish();
+            }
         }
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -147,7 +167,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
                         if(name.equals(city_you)){
                             if(cursor.moveToNext()) {
                                 id = cursor.getString(cursor.getColumnIndex("city_id"));
-                                if(isCities(id, citys)) {
+                                if(Utility.isCities(id, citys)) {
                                     xiangyou.setVisibility(View.GONE);
                                     intent = new Intent(WeatherForeignActivity.this, WeatherActivity.class);
                                     intent.putExtra("weather_id", id);
@@ -187,7 +207,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
                         if(name.equals(city_you)){
                             if(cursor.moveToPrevious()) {
                                 id = cursor.getString(cursor.getColumnIndex("city_id"));
-                                if(isCities(id, citys)) {
+                                if(Utility.isCities(id, citys)) {
                                     xiangzuo.setVisibility(View.GONE);
                                     intent = new Intent(WeatherForeignActivity.this, WeatherActivity.class);
                                     intent.putExtra("weather_id", id);
@@ -506,49 +526,6 @@ public class WeatherForeignActivity extends AppCompatActivity {
         }
         if(weatherinfo.equals("冷")) {
             mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.cold));
-        }
-    }
-
-    public String[] getCities() {
-        final String[] city;
-        city = new String[3181];
-        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();;
-        //查询Book表中的所有的数据
-        Cursor cursor = db.query("City_China", null, null, null, null, null, null);
-        cursor.moveToFirst();
-        for(int i=0;i<3181;i++,cursor.moveToNext()) {
-            //遍历Cursor对象，取出数据并打印
-            String id = cursor.getString(cursor.getColumnIndex("city_id"));
-            city[i] = id;
-        }
-        return city;
-    }
-    public String[] getForeignCities() {
-        final String[] city;
-        city = new String[1700];
-        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
-        Cursor cursor = db.query("ForeignCity", null, null, null, null, null, null);
-        cursor.moveToFirst();
-        for(int i = 0;i<1700;i++,cursor.moveToNext()) {
-            String id = cursor.getString(cursor.getColumnIndex("foreigncity_id"));
-            city[i] = id;
-        }
-        return city;
-    }
-
-    //判断输入的城市id是否在可查询的城市数组里
-    public boolean isCities(String city_info, String[] cityfc) {
-        int flag = 0;
-        for (int j = 0; j < cityfc.length; j++) {
-            if (city_info.equals(cityfc[j])) {
-                flag = 1;
-                break;
-            }
-        }
-        if (flag == 1) {
-            return true;
-        } else {
-            return false;
         }
     }
 

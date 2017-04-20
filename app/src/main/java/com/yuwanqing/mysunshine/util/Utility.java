@@ -1,7 +1,11 @@
 package com.yuwanqing.mysunshine.util;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
+import com.yuwanqing.mysunshine.CityBase;
+import com.yuwanqing.mysunshine.R;
 import com.yuwanqing.mysunshine.db.City;
 import com.yuwanqing.mysunshine.db.County;
 import com.yuwanqing.mysunshine.db.Province;
@@ -88,5 +92,48 @@ public class Utility {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String[] getCities() {
+        final String[] city;
+        city = new String[3181];
+        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();;
+        //查询Book表中的所有的数据
+        Cursor cursor = db.query("City_China", null, null, null, null, null, null);
+        cursor.moveToFirst();
+        for(int i=0;i<3181;i++,cursor.moveToNext()) {
+            //遍历Cursor对象，取出数据并打印
+            String id = cursor.getString(cursor.getColumnIndex("city_id"));
+            city[i] = id;
+        }
+        return city;
+    }
+    public static String[] getForeignCities() {
+        final String[] city;
+        city = new String[1700];
+        SQLiteDatabase db = CityBase.dbHelper.getWritableDatabase();
+        Cursor cursor = db.query("ForeignCity", null, null, null, null, null, null);
+        cursor.moveToFirst();
+        for(int i = 0;i<1700;i++,cursor.moveToNext()) {
+            String id = cursor.getString(cursor.getColumnIndex("foreigncity_id"));
+            city[i] = id;
+        }
+        return city;
+    }
+
+    //判断输入的城市id是否在可查询的城市数组里
+    public static boolean isCities(String city_info, String[] cityfc) {
+        int flag = 0;
+        for (int j = 0; j < cityfc.length; j++) {
+            if (city_info.equals(cityfc[j])) {
+                flag = 1;
+                break;
+            }
+        }
+        if (flag == 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

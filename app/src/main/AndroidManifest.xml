@@ -68,6 +68,8 @@
 
         <activity android:name=".DetailActivity">
         </activity>
+        <activity android:name=".SettingActivity">
+        </activity>
     </application>
 
 </manifest>

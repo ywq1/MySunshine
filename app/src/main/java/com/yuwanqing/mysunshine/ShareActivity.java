@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 public class ShareActivity extends AppCompatActivity {
-    private static final String LOG_TAG = ShareActivity.class.getSimpleName();
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
     private TextView share;
     private String data;
