@@ -3,6 +3,7 @@ package com.yuwanqing.mysunshine.util;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.yuwanqing.mysunshine.CityBase;
 import com.yuwanqing.mysunshine.R;
@@ -134,6 +135,15 @@ public class Utility {
             return true;
         } else {
             return false;
+        }
+    }
+    public static String format(int flag, String temp) {
+        if (flag == 1) {//说明是摄氏度
+            return temp + "℃";
+        }
+        else{
+            int temp1 = Integer.parseInt(temp);
+            return String.valueOf((int)((temp1 * 1.8) + 32)) + "℉";
         }
     }
 }

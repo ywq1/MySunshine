@@ -25,6 +25,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.model.UriLoader;
 import com.bumptech.glide.util.Util;
 import com.yuwanqing.mysunshine.db.City;
 import com.yuwanqing.mysunshine.gson.Forecast;
@@ -149,6 +150,7 @@ public class WeatherActivity extends AppCompatActivity {
             }
             if(flag == 1) {
                 responseText = city_weather;
+                recentcity = city_weather;
                 Weather weather = Utility.handleWeatherResponse(city_weather);
                 showWeatherInfo(weather);
             }
@@ -227,10 +229,12 @@ public class WeatherActivity extends AppCompatActivity {
                                     xiangyou.setVisibility(View.GONE);
                                     intent = new Intent(WeatherActivity.this, WeatherActivity.class);
                                     intent.putExtra("weather_id", id);
+                                    finish();
                                 }else {
                                     xiangyou.setVisibility(View.GONE);
                                     intent = new Intent(WeatherActivity.this, WeatherForeignActivity.class);
                                     intent.putExtra("weather_id", id);
+                                    finish();
                                 }
                                 flag=1;
                             }
@@ -267,10 +271,12 @@ public class WeatherActivity extends AppCompatActivity {
                                     xiangzuo.setVisibility(View.GONE);
                                     intent = new Intent(WeatherActivity.this, WeatherActivity.class);
                                     intent.putExtra("weather_id", id);
+                                    finish();
                                 }else {
                                     xiangzuo.setVisibility(View.GONE);
                                     intent = new Intent(WeatherActivity.this, WeatherForeignActivity.class);
                                     intent.putExtra("weather_id", id);
+                                    finish();
                                 }
                                 flag = 1;
                             }
@@ -288,6 +294,13 @@ public class WeatherActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Weather weather1 = Utility.handleWeatherResponse(recentcity);
+        showWeatherInfo(weather1);
     }
     /**
      * 根据天气id请求城市天气信息
@@ -334,18 +347,24 @@ public class WeatherActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
         editor.putString("weather", responseText);
         editor.apply();
+        int temp_flag = 1;
+        if(!(CityBase.temp_unit.equals("摄氏度℃"))){
+            temp_flag = 0;
+        }
 
         String cityName = weather.basic.city;
         city = cityName;
         date = weather.basic.update.loc;
         String[] c=date.split(" ");
         String cityId = weather.basic.id;
-        String degree = weather.now.tmp + "℃";
+        //String degree = weather.now.tmp + "℃";
+        String degree = Utility.format(temp_flag, weather.now.tmp);
         String weatherInfo = weather.now.cond.txt;
         String winddir = weather.now.wind.dir;
         String windsc = weather.now.wind.sc + " 级";
         String hum = weather.now.hum + "%";
-        String fl = weather.now.fl + "℃";
+        //String fl = weather.now.fl + "℃";
+        String fl = Utility.format(temp_flag, weather.now.fl);
 
         titleCity.setText(cityName);
 
@@ -432,10 +451,13 @@ public class WeatherActivity extends AppCompatActivity {
             TextView minText = (TextView) view.findViewById(R.id.min_text);
             dateText.setText(forecast.date);
             infoText.setText(forecast.cond.txt_d);
-            maxText.setText(forecast.tmp.max);
-            minText.setText(forecast.tmp.min);
-            data[i++] = forecast.cond.txt_d + "，最高气温:" + forecast.tmp.max
-                    + "℃，" + "最低气温:" + forecast.tmp.min + "℃";
+            //maxText.setText(forecast.tmp.max);
+            //minText.setText(forecast.tmp.min);
+            maxText.setText(Utility.format(temp_flag, forecast.tmp.max));
+            minText.setText(Utility.format(temp_flag, forecast.tmp.min));
+            //data[i++] = forecast.cond.txt_d + "，最高气温:" + forecast.tmp.max + "℃，" + "最低气温:" + forecast.tmp.min + "℃";
+            data[i++] = forecast.cond.txt_d + "，最高气温:" + Utility.format(temp_flag, forecast.tmp.max)
+                    + "最低气温:" + Utility.format(temp_flag, forecast.tmp.min);
             forecastLayout.addView(view);
         }
         if(weather.aqi != null) {
@@ -487,6 +509,9 @@ public class WeatherActivity extends AppCompatActivity {
                 startActivity(intent1);
                 break;
             case R.id.finish_item:
+                Intent intent3 = new Intent(WeatherActivity.this, SettingActivity.class);
+                startActivity(intent3);
+                break;
             default:
         }
         return true;

@@ -12,6 +12,7 @@ import com.yuwanqing.mysunshine.util.StackManager;
  */
 public class CityBase {
     public static MyDatabaseHelper dbHelper;
+    public static String temp_unit = "摄氏度℃";
     public static String[][] fcity = new String[][]{
             {"JP1850147", "Tokyo", "东京", "Japan", "日本"},
             {"JP1848354", "Yokohama", "横滨市", "Japan", "日本"},
