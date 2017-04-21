@@ -25,5 +25,23 @@
         android:id="@+id/spinner">
     </Spinner>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="天气背景:"
+            android:textColor="#000"
+            android:textSize="18sp"/>
+        <Spinner
+            android:entries="@array/setbg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner1">
+        </Spinner>
+    </LinearLayout>
 
 </LinearLayout>

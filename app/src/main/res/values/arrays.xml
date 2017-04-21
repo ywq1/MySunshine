@@ -5,4 +5,10 @@
         <item>摄氏度℃</item>
         <item>华氏度℉</item>
     </string-array>
+    <string-array name="setbg">
+        <item>请选择</item>
+        <item>默认背景</item>
+        <item>实景</item>
+        <item>卡通</item>
+    </string-array>
 </resources>

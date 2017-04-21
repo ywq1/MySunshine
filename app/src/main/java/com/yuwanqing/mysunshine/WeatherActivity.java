@@ -437,7 +437,15 @@ public class WeatherActivity extends AppCompatActivity {
         scText.setText(windsc);
         humText.setText(hum);
         flText.setText(fl);
-        setBackground(weatherInfo);
+        if(SettingParame.flag0 == 1){
+            setBackground1(weatherInfo);
+        }
+        if(SettingParame.flag0 == 2) {
+            setBackground2(weatherInfo);
+        }
+        if(SettingParame.flag0 == 3) {
+            setBackground3(weatherInfo);
+        }
         forecastLayout.removeAllViews();
         int i=0;
         for(Forecast forecast : weather.daily_forecast) {
@@ -448,11 +456,8 @@ public class WeatherActivity extends AppCompatActivity {
             TextView minText = (TextView) view.findViewById(R.id.min_text);
             dateText.setText(forecast.date);
             infoText.setText(forecast.cond.txt_d);
-            //maxText.setText(forecast.tmp.max);
-            //minText.setText(forecast.tmp.min);
             maxText.setText(Utility.format(temp_flag, forecast.tmp.max));
             minText.setText(Utility.format(temp_flag, forecast.tmp.min));
-            //data[i++] = forecast.cond.txt_d + "，最高气温:" + forecast.tmp.max + "℃，" + "最低气温:" + forecast.tmp.min + "℃";
             data[i++] = forecast.cond.txt_d + "，最高气温:" + Utility.format(temp_flag, forecast.tmp.max)
                     + "最低气温:" + Utility.format(temp_flag, forecast.tmp.min);
             forecastLayout.addView(view);
@@ -519,8 +524,159 @@ public class WeatherActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
-    public void setBackground(String weatherinfo) {
+    public void setBackground1(String weatherinfo) {
+        if(weatherinfo.equals("晴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("多云")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("少云")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("晴间多云")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("阴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("有风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("平静")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("微风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("和风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("清风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("强风/劲风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("疾风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("大风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("烈风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("风暴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("狂爆风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("飓风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("龙卷风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("热带风暴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("阵雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("强阵雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("雷阵雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("强雷阵雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("雷阵雨伴有冰雹")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("小雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("中雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("大雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("极端降雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("毛毛雨/细雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("暴雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("大暴雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("特大暴雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("冻雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("小雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("中雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("大雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("暴雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("雨夹雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("雨雪天气")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("阵雨夹雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("阵雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("薄雾")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("雾")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("霾")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("扬沙")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("浮尘")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("沙尘暴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("强沙尘暴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("热")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+        if(weatherinfo.equals("冷")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.calm));
+        }
+    }
+    public void setBackground2(String weatherinfo) {
         if(weatherinfo.equals("晴")) {
             mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.sunny));
         }
@@ -670,6 +826,158 @@ public class WeatherActivity extends AppCompatActivity {
         }
         if(weatherinfo.equals("冷")) {
             mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.cold));
+        }
+    }
+    public void setBackground3(String weatherinfo) {
+        if(weatherinfo.equals("晴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_sunny_day));
+        }
+        if(weatherinfo.equals("多云")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_cloudy_day));
+        }
+        if(weatherinfo.equals("少云")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_cloudy_day));
+        }
+        if(weatherinfo.equals("晴间多云")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_cloudy_day));
+        }
+        if(weatherinfo.equals("阴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_overcast));
+        }
+        if(weatherinfo.equals("有风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("平静")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_sunny_day));
+        }
+        if(weatherinfo.equals("微风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_sunny_day));
+        }
+        if(weatherinfo.equals("和风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_sunny_day));
+        }
+        if(weatherinfo.equals("清风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_sunny_day));
+        }
+        if(weatherinfo.equals("强风/劲风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("疾风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("大风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("烈风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("风暴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("狂爆风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("飓风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("龙卷风")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("热带风暴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("阵雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("强阵雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("雷阵雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("强雷阵雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("雷阵雨伴有冰雹")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("小雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("中雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("大雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("极端降雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("毛毛雨/细雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("暴雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("大暴雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("特大暴雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("冻雨")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_rain));
+        }
+        if(weatherinfo.equals("小雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("中雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("大雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("暴雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("雨夹雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("雨雪天气")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("阵雨夹雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("阵雪")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("薄雾")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_snow));
+        }
+        if(weatherinfo.equals("雾")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
+        }
+        if(weatherinfo.equals("霾")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_haze));
+        }
+        if(weatherinfo.equals("扬沙")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_haze));
+        }
+        if(weatherinfo.equals("浮尘")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_haze));
+        }
+        if(weatherinfo.equals("沙尘暴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_haze));
+        }
+        if(weatherinfo.equals("强沙尘暴")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_haze));
+        }
+        if(weatherinfo.equals("热")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_sunny_day));
+        }
+        if(weatherinfo.equals("冷")) {
+            mBackground.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_fog));
         }
     }
 

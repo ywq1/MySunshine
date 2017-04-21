@@ -7,6 +7,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.yuwanqing.mysunshine.util.StackManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by yuwanqing on 2017-03-31.
  */
