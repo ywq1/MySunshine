@@ -6,38 +6,27 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.model.UriLoader;
-import com.bumptech.glide.util.Util;
-import com.yuwanqing.mysunshine.db.City;
 import com.yuwanqing.mysunshine.gson.Forecast;
 import com.yuwanqing.mysunshine.gson.Weather;
 import com.yuwanqing.mysunshine.util.HttpUtil;
-import com.yuwanqing.mysunshine.util.StackManager;
 import com.yuwanqing.mysunshine.util.Utility;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
-import java.util.Stack;
+import java.security.AuthProvider;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -185,6 +174,14 @@ public class WeatherActivity extends AppCompatActivity {
                 finish();
             }
         }
+        //自动刷新
+        swipeRefresh.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefresh.setRefreshing(true);
+                requestWeather(mWeatherId1);
+            }
+        });
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(){
@@ -333,7 +330,7 @@ public class WeatherActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WeatherActivity.this, "刷新天气信息失败", Toast.LENGTH_SHORT).show();
                         swipeRefresh.setRefreshing(false);
                     }
                 });

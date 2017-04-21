@@ -16,14 +16,17 @@ public class SettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
         spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.getSelectedItem();
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String result = parent.getItemAtPosition(position).toString();
-                if(result == "请选择"){
-                } else if(result == "摄氏度℃"){
+                if(result.equals("请选择")){
+                }
+                if(result.equals("摄氏度℃")){
                     CityBase.temp_unit = result;
-                } else{
+                }
+                if(result.equals("华氏度℉")){
                     CityBase.temp_unit = result;
                 }
             }

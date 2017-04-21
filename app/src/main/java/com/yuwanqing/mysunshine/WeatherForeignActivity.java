@@ -38,7 +38,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
     private String city_you;
     private String recentcity;
     private String[] citys;
-    private String[] foreigncities;
+    //private String[] foreigncities;
 
     private FrameLayout mBackground;
     private SwipeRefreshLayout swipeRefresh;//下拉刷新
@@ -69,8 +69,8 @@ public class WeatherForeignActivity extends AppCompatActivity {
         data = new String[3];
         citys = new String[3181];
         citys = Utility.getCities();
-        foreigncities = new String[1700];
-        foreigncities = Utility.getForeignCities();
+        //foreigncities = new String[1700];
+        //foreigncities = Utility.getForeignCities();
         //初始化各控件
         xiangyou = (TextView) findViewById(R.id.foreign_xiangyou);
         xiangzuo = (TextView) findViewById(R.id.foreign_xiangzuo);
@@ -112,6 +112,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
             }
             if(flag == 1) {
                 responseText = city_weather;
+                recentcity = city_weather;
                 Weather weather = Utility.handleWeatherResponse(city_weather);
                 showWeatherInfo(weather);
             }
@@ -146,6 +147,14 @@ public class WeatherForeignActivity extends AppCompatActivity {
                 finish();
             }
         }
+        //自动刷新
+        swipeRefresh.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefresh.setRefreshing(true);
+                requestWeather(mWeatherId1);
+            }
+        });
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(){
@@ -233,6 +242,12 @@ public class WeatherForeignActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+        Weather weather1 = Utility.handleWeatherResponse(recentcity);
+        showWeatherInfo(weather1);
+    }
     /**
      * 根据天气id请求城市天气信息
      */
@@ -255,7 +270,7 @@ public class WeatherForeignActivity extends AppCompatActivity {
                         else {
                             Toast.makeText(WeatherForeignActivity.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
                         }
-                        swipeRefresh.setRefreshing(false);//
+                        swipeRefresh.setRefreshing(false);
                     }
                 });
             }
@@ -279,17 +294,23 @@ public class WeatherForeignActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherForeignActivity.this).edit();
         editor.putString("weather", responseText);
         editor.apply();
+        int temp_flag = 1;
+        if(!(CityBase.temp_unit.equals("摄氏度℃"))){
+            temp_flag = 0;
+        }
 
         String cityName = weather.basic.city;
         city = cityName;
         date = weather.basic.update.loc;
         String cityId = weather.basic.id;
-        String degree = weather.now.tmp + "℃";
+        //String degree = weather.now.tmp + "℃";
+        String degree = Utility.format(temp_flag, weather.now.tmp);
         String weatherInfo = weather.now.cond.txt;
         String winddir = weather.now.wind.dir;
         String windsc = weather.now.wind.sc + " 级";
         String hum = weather.now.hum + "%";
-        String fl = weather.now.fl + "℃";
+        //String fl = weather.now.fl + "℃";
+        String fl = Utility.format(temp_flag, weather.now.fl);
 
         titleCity.setText(cityName);
 
@@ -340,10 +361,13 @@ public class WeatherForeignActivity extends AppCompatActivity {
             TextView minText = (TextView) view.findViewById(R.id.min_text);
             dateText.setText(forecast.date);
             infoText.setText(forecast.cond.txt_d);
-            maxText.setText(forecast.tmp.max);
-            minText.setText(forecast.tmp.min);
-            data[i++] = forecast.cond.txt_d + "，最高气温:" + forecast.tmp.max + "℃，"
-                    + "最低气温:" + forecast.tmp.min + "℃";
+            //maxText.setText(forecast.tmp.max);
+            //minText.setText(forecast.tmp.min);
+            maxText.setText(Utility.format(temp_flag, forecast.tmp.max));
+            minText.setText(Utility.format(temp_flag, forecast.tmp.min));
+            //data[i++] = forecast.cond.txt_d + "，最高气温:" + forecast.tmp.max + "℃，" + "最低气温:" + forecast.tmp.min + "℃";
+            data[i++] = forecast.cond.txt_d + "，最高气温:" + Utility.format(temp_flag, forecast.tmp.max)
+                    + "最低气温:" + Utility.format(temp_flag, forecast.tmp.min);
             forecastLayout.addView(view);
         }
         weatherLayout.setVisibility(View.VISIBLE);
@@ -365,6 +389,9 @@ public class WeatherForeignActivity extends AppCompatActivity {
                 startActivity(intent1);
                 break;
             case R.id.finish_item:
+                Intent intent3 = new Intent(WeatherForeignActivity.this, SettingActivity.class);
+                startActivity(intent3);
+                break;
             default:
         }
         return true;
