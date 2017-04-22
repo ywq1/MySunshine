@@ -1,5 +1,7 @@
 package com.yuwanqing.mysunshine;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -27,10 +29,14 @@ public class SettingActivity extends AppCompatActivity {
                 if(result.equals("请选择")){
                 }
                 if(result.equals("摄氏度℃")){
-                    CityBase.temp_unit = result;
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(SettingActivity.this).edit();
+                    editor.putString("unit", result);
+                    editor.apply();
                 }
                 if(result.equals("华氏度℉")){
-                    CityBase.temp_unit = result;
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(SettingActivity.this).edit();
+                    editor.putString("unit", result);
+                    editor.apply();
                 }
             }
             @Override
@@ -44,13 +50,19 @@ public class SettingActivity extends AppCompatActivity {
                 if(result.equals("请选择")){
                 }
                 if(result.equals("默认背景")){
-                    SettingParame.flag0 = 1;
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(SettingActivity.this).edit();
+                    editor.putString("background", result);
+                    editor.apply();
                 }
                 if(result.equals("实景")){
-                    SettingParame.flag0 = 2;
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(SettingActivity.this).edit();
+                    editor.putString("background", result);
+                    editor.apply();
                 }
                 if(result.equals("卡通")){
-                    SettingParame.flag0 = 3;
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(SettingActivity.this).edit();
+                    editor.putString("background", result);
+                    editor.apply();
                 }
             }
             @Override

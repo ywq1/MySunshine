@@ -295,7 +295,17 @@ public class WeatherForeignActivity extends AppCompatActivity {
         editor.putString("weather", responseText);
         editor.apply();
         int temp_flag = 1;
-        if(!(CityBase.temp_unit.equals("摄氏度℃"))){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        String temp_unit = pref.getString("unit", null);
+        if(temp_unit != null){
+            if(temp_unit.equals("摄氏度℃")) {
+                temp_flag = 1;
+            }
+            else{
+                temp_flag = 0;
+            }
+        }
+        else{
             temp_flag = 0;
         }
 
@@ -350,14 +360,20 @@ public class WeatherForeignActivity extends AppCompatActivity {
         scText.setText(windsc);
         humText.setText(hum);
         flText.setText(fl);
-        if(SettingParame.flag0 == 1){
+        SharedPreferences pref1 = PreferenceManager.getDefaultSharedPreferences(this);
+        String flag0 = pref1.getString("background", null);
+        if(flag0 == null){
             setBackground1(weatherInfo);
-        }
-        if(SettingParame.flag0 == 2) {
-            setBackground2(weatherInfo);
-        }
-        if(SettingParame.flag0 == 3) {
-            setBackground3(weatherInfo);
+        } else {
+            if (flag0.equals("默认背景")) {
+                setBackground1(weatherInfo);
+            }
+            if (flag0.equals("实景")) {
+                setBackground2(weatherInfo);
+            }
+            if (flag0.equals("卡通")) {
+                setBackground3(weatherInfo);
+            }
         }
         forecastLayout.removeAllViews();
         int i=0;
